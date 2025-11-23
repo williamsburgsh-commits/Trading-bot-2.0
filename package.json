@@ -6,9 +6,14 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "ts-node src/index.ts",
+    "dev": "ts-node src/signal-provider/index.ts",
+    "dev:legacy": "ts-node src/index.ts",
     "monitor": "ts-node src/monitor.ts",
     "test:signals": "ts-node src/test-signals.ts",
+    "lint": "eslint 'src/**/*.ts'",
+    "lint:fix": "eslint 'src/**/*.ts' --fix",
+    "format": "prettier --write 'src/**/*.ts'",
+    "format:check": "prettier --check 'src/**/*.ts'",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "test": "jest",
@@ -42,12 +47,20 @@
     "technicalindicators": "^3.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
+    "winston": "^3.18.3",
     "ws": "^8.18.3"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.1",
     "@types/jest": "^30.0.0",
     "@types/ws": "^8.18.1",
+    "@typescript-eslint/eslint-plugin": "^8.47.0",
+    "@typescript-eslint/parser": "^8.47.0",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
     "jest": "^30.2.0",
+    "prettier": "^3.6.2",
     "ts-jest": "^29.4.5"
   }
 }
