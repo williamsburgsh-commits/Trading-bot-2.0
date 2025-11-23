@@ -11,7 +11,12 @@
     "test:signals": "ts-node src/test-signals.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:unit": "jest --testPathPattern=unit",
+    "test:integration": "jest --testPathPattern=integration",
+    "example:ta": "ts-node src/examples/ta-module-example.ts"
   },
   "repository": {
     "type": "git",
@@ -33,7 +38,13 @@
     "dotenv": "^17.2.3",
     "node-cron": "^4.2.1",
     "prisma": "^5.22.0",
+    "technicalindicators": "^3.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.5"
   }
 }
