@@ -16,7 +16,8 @@
     "test:coverage": "jest --coverage",
     "test:unit": "jest --testPathPattern=unit",
     "test:integration": "jest --testPathPattern=integration",
-    "example:ta": "ts-node src/examples/ta-module-example.ts"
+    "example:ta": "ts-node src/examples/ta-module-example.ts",
+    "example:binance": "ts-node src/examples/binance-data-client-example.ts"
   },
   "repository": {
     "type": "git",
@@ -40,10 +41,12 @@
     "prisma": "^5.22.0",
     "technicalindicators": "^3.1.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
+    "@types/ws": "^8.18.1",
     "jest": "^30.2.0",
     "ts-jest": "^29.4.5"
   }
