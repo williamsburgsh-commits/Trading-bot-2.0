@@ -1,0 +1,39 @@
+{
+  "name": "trading-signal-monitor",
+  "version": "1.0.0",
+  "description": "Automated cryptocurrency trading signal monitoring system with persistence, technical analysis, and alerts",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "monitor": "ts-node src/monitor.ts",
+    "test:signals": "ts-node src/test-signals.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://williamsburgsh-commits:ghs_sLOlvYwl5Bfpm3Ch4ypDKcK0ZN4KZp355Tpt@github.com/williamsburgsh-commits/Trading-bot-2.0.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/williamsburgsh-commits/Trading-bot-2.0/issues"
+  },
+  "homepage": "https://github.com/williamsburgsh-commits/Trading-bot-2.0#readme",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "@types/node": "^24.10.1",
+    "@types/node-cron": "^3.0.11",
+    "axios": "^1.13.2",
+    "dotenv": "^17.2.3",
+    "node-cron": "^4.2.1",
+    "prisma": "^5.22.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
