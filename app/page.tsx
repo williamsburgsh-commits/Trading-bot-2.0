@@ -7,7 +7,7 @@ import { SignalsGrid } from '@/components/signals-grid';
 import { SignalsFilter } from '@/components/signals-filter';
 import { MetricsCard } from '@/components/metrics-card';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Grid3x3, List } from 'lucide-react';
+import { RefreshCw, Grid, List } from 'lucide-react';
 
 export default function DashboardPage() {
   const [signals, setSignals] = useState<Signal[]>([]);
@@ -185,7 +185,7 @@ export default function DashboardPage() {
                     size="sm"
                     onClick={() => setViewMode('grid')}
                   >
-                    <Grid3x3 className="h-4 w-4" />
+                    <Grid className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
