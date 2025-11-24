@@ -240,15 +240,15 @@ describe('BinanceCache', () => {
     });
 
     it('should include optional parameters in key', () => {
-      const key1: CacheKey = { 
-        symbol: 'BTCUSDT', 
-        timeframe: '1h', 
+      const key1: CacheKey = {
+        symbol: 'BTCUSDT',
+        timeframe: '1h',
         startTime: 1000000,
         endTime: 2000000,
       };
-      const key2: CacheKey = { 
-        symbol: 'BTCUSDT', 
-        timeframe: '1h', 
+      const key2: CacheKey = {
+        symbol: 'BTCUSDT',
+        timeframe: '1h',
         startTime: 3000000,
         endTime: 4000000,
       };

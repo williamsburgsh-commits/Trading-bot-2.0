@@ -39,10 +39,7 @@ export function calculateRSI(closes: number[], period: number = 14): number {
   return rsi;
 }
 
-export function calculateEMA(
-  data: number[],
-  period: number
-): number[] {
+export function calculateEMA(data: number[], period: number): number[] {
   const ema: number[] = [];
   const multiplier = 2 / (period + 1);
 
@@ -97,6 +94,6 @@ export function calculateVolatility(closes: number[], period: number = 20): numb
   const slice = closes.slice(-period);
   const mean = slice.reduce((sum, val) => sum + val, 0) / period;
   const variance = slice.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / period;
-  
+
   return Math.sqrt(variance);
 }

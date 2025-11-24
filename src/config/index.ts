@@ -7,7 +7,7 @@ export const config = {
   database: {
     url: process.env.DATABASE_URL || 'file:./dev.db',
   },
-  
+
   binance: {
     baseUrl: process.env.BINANCE_API_URL || 'https://api.binance.com',
   },
@@ -17,7 +17,7 @@ export const config = {
     assets: (process.env.ASSETS || 'BTCUSDT,ETHUSDT').split(','),
     timeframes: (process.env.TIMEFRAMES || '15m,1h').split(','),
     rateLimit: {
-      maxRequests: parseInt(process.env.RATE_LIMIT_MAX || '20'),
+      maxRequests: parseInt(process.env.RATE_LIMIT_MAX || '1200'),
       perMinutes: parseInt(process.env.RATE_LIMIT_MINUTES || '1'),
     },
   } as MonitorConfig,

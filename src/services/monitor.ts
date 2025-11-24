@@ -26,11 +26,11 @@ export class MonitorService {
 
   async shutdown(): Promise<void> {
     console.log('Shutting down Monitor Service...');
-    
+
     if (this.task) {
       this.task.stop();
     }
-    
+
     await this.db.disconnect();
     console.log('Monitor Service stopped');
   }
@@ -56,16 +56,15 @@ export class MonitorService {
       for (const asset of config.monitor.assets) {
         for (const timeframe of config.monitor.timeframes) {
           try {
-            const signals = await this.signalEngine.generateSignals(
-              asset,
-              timeframe
-            );
+            const signals = await this.signalEngine.generateSignals(asset, timeframe);
 
             for (const signal of signals) {
               const savedSignal = await this.db.saveSignal(signal);
-              
-              if (savedSignal.createdAt && 
-                  new Date(savedSignal.createdAt).getTime() > startTime - 1000) {
+
+              if (
+                savedSignal.createdAt &&
+                new Date(savedSignal.createdAt).getTime() > startTime - 1000
+              ) {
                 allSignals.push(savedSignal);
                 await this.alerting.sendAlert(savedSignal);
               }
@@ -73,10 +72,7 @@ export class MonitorService {
           } catch (error) {
             const err = error as Error;
             console.error(`Error processing ${asset} ${timeframe}:`, err.message);
-            await this.alerting.sendErrorAlert(
-              err,
-              `${asset} ${timeframe} scan`
-            );
+            await this.alerting.sendErrorAlert(err, `${asset} ${timeframe} scan`);
           }
 
           await this.sleep(500);
@@ -86,7 +82,7 @@ export class MonitorService {
       const duration = ((Date.now() - startTime) / 1000).toFixed(2);
       console.log(`\nScan completed in ${duration}s`);
       console.log(`New signals found: ${allSignals.length}`);
-      
+
       if (allSignals.length > 0) {
         console.log('\nNew signals summary:');
         allSignals.forEach((signal) => {
@@ -139,7 +135,7 @@ export class MonitorService {
     config: any;
   }> {
     const activeSignals = await this.db.getActiveSignals();
-    
+
     return {
       isRunning: this.isRunning,
       activeSignals: activeSignals.length,

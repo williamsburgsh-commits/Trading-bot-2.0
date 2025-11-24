@@ -34,7 +34,7 @@ export class BinanceWebSocketClient extends EventEmitter {
 
   subscribe(symbol: BinanceSymbol, timeframe: BinanceTimeframe): void {
     const streamKey = this.getStreamKey(symbol, timeframe);
-    
+
     if (this.connections.has(streamKey)) {
       console.log(`Already subscribed to ${streamKey}`);
       return;
@@ -74,7 +74,7 @@ export class BinanceWebSocketClient extends EventEmitter {
 
   close(): void {
     this.isShuttingDown = true;
-    
+
     for (const [streamKey, ws] of this.connections.entries()) {
       ws.close();
       this.connections.delete(streamKey);
@@ -202,7 +202,9 @@ export class BinanceWebSocketClient extends EventEmitter {
     this.reconnectAttempts.set(streamKey, attempts + 1);
 
     const delay = this.reconnectDelay * Math.pow(2, attempts);
-    console.log(`Reconnecting to ${streamKey} in ${delay}ms (attempt ${attempts + 1}/${this.maxReconnectAttempts})`);
+    console.log(
+      `Reconnecting to ${streamKey} in ${delay}ms (attempt ${attempts + 1}/${this.maxReconnectAttempts})`
+    );
 
     const event: ConnectionStatusEvent = {
       status: 'reconnecting',
@@ -244,10 +246,7 @@ export class BinanceWebSocketClient extends EventEmitter {
     this.emit('error', error);
   }
 
-  on<K extends keyof BinanceEventMap>(
-    event: K,
-    listener: (arg: BinanceEventMap[K]) => void
-  ): this {
+  on<K extends keyof BinanceEventMap>(event: K, listener: (arg: BinanceEventMap[K]) => void): this {
     return super.on(event, listener);
   }
 
@@ -258,10 +257,7 @@ export class BinanceWebSocketClient extends EventEmitter {
     return super.once(event, listener);
   }
 
-  emit<K extends keyof BinanceEventMap>(
-    event: K,
-    arg: BinanceEventMap[K]
-  ): boolean {
+  emit<K extends keyof BinanceEventMap>(event: K, arg: BinanceEventMap[K]): boolean {
     return super.emit(event, arg);
   }
 }

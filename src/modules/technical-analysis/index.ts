@@ -138,7 +138,7 @@ export function computeMultiTimeframeIndicators(
   for (const [timeframe, klines] of klinesByTimeframe.entries()) {
     const key = `${asset}_${timeframe}`;
     const indicators = computeIndicators(klines, asset, timeframe, config);
-    
+
     if (indicators) {
       result[key] = indicators;
     }

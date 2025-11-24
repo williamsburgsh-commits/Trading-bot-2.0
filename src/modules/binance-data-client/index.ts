@@ -19,11 +19,7 @@ export class BinanceDataClient {
     this.wsClient = new BinanceWebSocketClient(config);
   }
 
-  async getKlines(
-    symbol: BinanceSymbol,
-    timeframe: BinanceTimeframe,
-    limit: number = 500
-  ) {
+  async getKlines(symbol: BinanceSymbol, timeframe: BinanceTimeframe, limit: number = 500) {
     return this.restClient.getKlines(symbol, timeframe, limit);
   }
 
@@ -34,13 +30,7 @@ export class BinanceDataClient {
     endTime?: number,
     limit: number = 1000
   ) {
-    return this.restClient.getHistoricalKlines(
-      symbol,
-      timeframe,
-      startTime,
-      endTime,
-      limit
-    );
+    return this.restClient.getHistoricalKlines(symbol, timeframe, startTime, endTime, limit);
   }
 
   async bulkHistoricalDownload(
@@ -49,12 +39,7 @@ export class BinanceDataClient {
     startTime: number,
     endTime: number
   ) {
-    return this.restClient.bulkHistoricalDownload(
-      symbol,
-      timeframe,
-      startTime,
-      endTime
-    );
+    return this.restClient.bulkHistoricalDownload(symbol, timeframe, startTime, endTime);
   }
 
   subscribeRealtime(symbol: BinanceSymbol, timeframe: BinanceTimeframe): void {

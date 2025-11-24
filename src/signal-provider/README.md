@@ -32,8 +32,8 @@ Configuration is managed through environment variables. Copy `.env.example` to `
 ```bash
 # Binance API Configuration
 BINANCE_API_URL="https://api.binance.com"
-BINANCE_API_KEY="your-api-key"       # Optional
-BINANCE_API_SECRET="your-secret"      # Optional
+# BINANCE_API_KEY="your-api-key"       # Optional - not needed for public price data
+# BINANCE_API_SECRET="your-secret"      # Optional - not needed for public price data
 
 # Database
 DATABASE_URL="file:./dev.db"
@@ -43,9 +43,18 @@ LOG_LEVEL="info"                      # error, warn, info, http, verbose, debug,
 LOG_FORMAT="pretty"                   # json or pretty
 
 # Rate Limiting
-RATE_LIMIT_MAX=20
+RATE_LIMIT_MAX=1200                   # Public endpoints: up to 1200 req/min
 RATE_LIMIT_MINUTES=1
 ```
+
+### Binance API Keys
+
+**API keys are optional** for this service. The signal provider only uses public Binance endpoints for fetching price data (klines), which do not require authentication.
+
+- **Without API keys**: Full access to public market data (OHLCV, klines, ticker)
+- **With API keys**: Same as above + access to private account endpoints (not currently used)
+
+If API keys are not provided in the environment, the service will operate in public-only mode with no limitations on functionality.
 
 ## Development
 

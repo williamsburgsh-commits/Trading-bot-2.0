@@ -1,7 +1,4 @@
-import {
-  computeIndicators,
-  computeMultiTimeframeIndicators,
-} from '../index';
+import { computeIndicators, computeMultiTimeframeIndicators } from '../index';
 import {
   generateMockKlines,
   generateBullishTrend,
@@ -239,13 +236,9 @@ describe('Technical Analysis Module - Integration', () => {
     });
 
     it('should handle multiple assets separately', () => {
-      const btcKlines = new Map([
-        ['1h', generateMockKlines(250)],
-      ]);
+      const btcKlines = new Map([['1h', generateMockKlines(250)]]);
 
-      const ethKlines = new Map([
-        ['1h', generateMockKlines(250)],
-      ]);
+      const ethKlines = new Map([['1h', generateMockKlines(250)]]);
 
       const btcMultiTF = computeMultiTimeframeIndicators(btcKlines, 'BTCUSDT');
       const ethMultiTF = computeMultiTimeframeIndicators(ethKlines, 'ETHUSDT');
@@ -276,11 +269,11 @@ describe('Technical Analysis Module - Integration', () => {
 
     it('should handle varying timeframe names', () => {
       const timeframes = ['1m', '5m', '15m', '1h', '4h', '1d', '1w'];
-      
+
       for (const tf of timeframes) {
         const klines = generateMockKlines(250);
         const snapshot = computeIndicators(klines, 'BTCUSDT', tf);
-        
+
         expect(snapshot).not.toBeNull();
         expect(snapshot!.timeframe).toBe(tf);
       }
@@ -288,11 +281,11 @@ describe('Technical Analysis Module - Integration', () => {
 
     it('should handle varying asset symbols', () => {
       const assets = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT'];
-      
+
       for (const asset of assets) {
         const klines = generateMockKlines(250);
         const snapshot = computeIndicators(klines, asset, '1h');
-        
+
         expect(snapshot).not.toBeNull();
         expect(snapshot!.asset).toBe(asset);
       }

@@ -22,9 +22,7 @@ export class MarketDataService {
 
     if (this.requestCount >= config.monitor.rateLimit.maxRequests) {
       const waitTime = windowDuration - (now - this.requestWindowStart);
-      console.log(
-        `Rate limit reached. Waiting ${Math.ceil(waitTime / 1000)}s...`
-      );
+      console.log(`Rate limit reached. Waiting ${Math.ceil(waitTime / 1000)}s...`);
       await new Promise((resolve) => setTimeout(resolve, waitTime));
       this.requestCount = 0;
       this.requestWindowStart = Date.now();
@@ -72,11 +70,7 @@ export class MarketDataService {
     };
   }
 
-  async getKlines(
-    symbol: string,
-    interval: string,
-    limit: number = 100
-  ): Promise<KlineData[]> {
+  async getKlines(symbol: string, interval: string, limit: number = 100): Promise<KlineData[]> {
     await this.checkRateLimit();
 
     try {
@@ -116,13 +110,13 @@ export class MarketDataService {
     const basePrice = symbol.includes('BTC') ? 45000 : 2500;
     const now = Date.now();
     const intervalMs = 60 * 60 * 1000;
-    
+
     const signalType = Math.random() > 0.5 ? 'buy' : 'sell';
 
     for (let i = limit - 1; i >= 0; i--) {
       const time = now - i * intervalMs;
       let priceChange = 0;
-      
+
       if (signalType === 'buy') {
         if (i > 30) {
           priceChange = -0.002 * (limit - i);
@@ -140,13 +134,13 @@ export class MarketDataService {
           priceChange = -0.001 * (15 - i);
         }
       }
-      
+
       const priceMultiplier = 1 + priceChange + (Math.random() - 0.5) * 0.005;
       const open = basePrice * priceMultiplier;
       const close = open * (1 + (Math.random() - 0.5) * 0.01);
       const high = Math.max(open, close) * (1 + Math.random() * 0.005);
       const low = Math.min(open, close) * (1 - Math.random() * 0.005);
-      
+
       const baseVolume = 100;
       const volumeMultiplier = i < 10 ? 2.5 + Math.random() * 0.5 : 1 + Math.random() * 0.3;
       const volume = baseVolume * volumeMultiplier;

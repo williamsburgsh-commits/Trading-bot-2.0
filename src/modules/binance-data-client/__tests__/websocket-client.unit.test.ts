@@ -45,9 +45,7 @@ describe('BinanceWebSocketClient', () => {
     it('should create WebSocket connection', () => {
       client.subscribe('BTCUSDT', '1h');
 
-      expect(WebSocket).toHaveBeenCalledWith(
-        'wss://stream.binance.com:9443/ws/btcusdt@kline_1h'
-      );
+      expect(WebSocket).toHaveBeenCalledWith('wss://stream.binance.com:9443/ws/btcusdt@kline_1h');
     });
 
     it('should not create duplicate connections', () => {
@@ -273,7 +271,7 @@ describe('BinanceWebSocketClient', () => {
       const mockMessage2 = generateMockWebSocketMessage('ETHUSDT', '1h', false);
 
       client.subscribe('BTCUSDT', '1h');
-      
+
       const handler1 = eventHandlers.get('message');
       if (handler1) {
         handler1(JSON.stringify(mockMessage1));
@@ -295,10 +293,10 @@ describe('BinanceWebSocketClient', () => {
   describe('close', () => {
     it('should close all connections', () => {
       client.subscribe('BTCUSDT', '1h');
-      
+
       eventHandlers.clear();
       const closeSpy1 = mockWebSocket.close;
-      
+
       client.subscribe('ETHUSDT', '1h');
       const closeSpy2 = mockWebSocket.close;
 

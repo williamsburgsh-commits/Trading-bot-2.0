@@ -17,9 +17,9 @@ async function createTestSignals() {
       {
         asset: 'BTCUSDT',
         timeframe: '15m',
-        entryPrice: 45250.00,
-        takeProfit: 46155.00,
-        stopLoss: 44345.00,
+        entryPrice: 45250.0,
+        takeProfit: 46155.0,
+        stopLoss: 44345.0,
         status: 'active',
         signalType: 'BUY',
         metadata: JSON.stringify({
@@ -32,7 +32,7 @@ async function createTestSignals() {
       {
         asset: 'ETHUSDT',
         timeframe: '1h',
-        entryPrice: 2485.50,
+        entryPrice: 2485.5,
         takeProfit: 2535.21,
         stopLoss: 2435.79,
         status: 'active',
@@ -41,22 +41,22 @@ async function createTestSignals() {
           rsi: 29.8,
           macd: { macd: 0.0032, signal: 0.0021, histogram: 0.0011 },
           volumeRatio: 1.85,
-          volatility: 35.40,
+          volatility: 35.4,
         }),
       },
       {
         asset: 'BTCUSDT',
         timeframe: '1h',
-        entryPrice: 46890.00,
-        takeProfit: 45932.20,
-        stopLoss: 47847.80,
+        entryPrice: 46890.0,
+        takeProfit: 45932.2,
+        stopLoss: 47847.8,
         status: 'active',
         signalType: 'SELL',
         metadata: JSON.stringify({
           rsi: 73.2,
           macd: { macd: -0.0042, signal: -0.0028, histogram: -0.0014 },
           volumeRatio: 2.15,
-          volatility: 520.80,
+          volatility: 520.8,
         }),
       },
     ];
@@ -65,7 +65,7 @@ async function createTestSignals() {
       console.log(`Creating ${signal.signalType} signal for ${signal.asset}...`);
       const savedSignal = await db.saveSignal(signal);
       console.log(`Signal saved with ID: ${savedSignal.id}`);
-      
+
       await alerting.sendAlert(savedSignal);
       console.log('Alert sent!\n');
     }

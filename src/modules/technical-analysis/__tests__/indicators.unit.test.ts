@@ -75,7 +75,7 @@ describe('Indicators', () => {
     it('should handle different periods', () => {
       const klines = generateMockKlines(50);
       const candles = normalizeKlineData(klines);
-      
+
       const rsi7 = calculateRSI(candles, 7);
       const rsi14 = calculateRSI(candles, 14);
       const rsi21 = calculateRSI(candles, 21);
@@ -287,7 +287,7 @@ describe('Indicators', () => {
     it('should be higher in volatile markets', () => {
       const normalKlines = generateMockKlines(50, 50000);
       const volatileKlines = generateMockKlines(50, 50000);
-      
+
       const normalCandles = normalizeKlineData(normalKlines);
       const volatileCandles = normalizeKlineData(volatileKlines);
 

@@ -19,11 +19,7 @@ export class SignalEngine {
     try {
       console.log(`Analyzing ${asset} on ${timeframe}...`);
 
-      const klines = await this.marketDataService.getKlines(
-        asset,
-        timeframe,
-        100
-      );
+      const klines = await this.marketDataService.getKlines(asset, timeframe, 100);
 
       if (klines.length < 50) {
         console.log(`Insufficient data for ${asset} on ${timeframe}`);
@@ -50,23 +46,19 @@ export class SignalEngine {
       const signals: Signal[] = [];
 
       if (this.isBuySignal(rsi, macd, volumeRatio)) {
-        const signal = this.createBuySignal(
-          asset,
-          timeframe,
-          currentPrice,
-          volatility,
-          { rsi, macd: macd!, volumeRatio }
-        );
+        const signal = this.createBuySignal(asset, timeframe, currentPrice, volatility, {
+          rsi,
+          macd: macd!,
+          volumeRatio,
+        });
         signals.push(signal);
         console.log(`BUY signal generated for ${asset}`);
       } else if (this.isSellSignal(rsi, macd, volumeRatio)) {
-        const signal = this.createSellSignal(
-          asset,
-          timeframe,
-          currentPrice,
-          volatility,
-          { rsi, macd: macd!, volumeRatio }
-        );
+        const signal = this.createSellSignal(asset, timeframe, currentPrice, volatility, {
+          rsi,
+          macd: macd!,
+          volumeRatio,
+        });
         signals.push(signal);
         console.log(`SELL signal generated for ${asset}`);
       } else {
