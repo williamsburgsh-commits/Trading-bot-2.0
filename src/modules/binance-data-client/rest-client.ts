@@ -1,15 +1,22 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import { KlineData } from '../../types';
-import { 
-  BinanceSymbol, 
-  BinanceTimeframe, 
-  BinanceClientConfig, 
+import {
+  BinanceSymbol,
+  BinanceTimeframe,
+  BinanceClientConfig,
   RetryConfig,
-  CacheKey 
+  CacheKey,
 } from './types';
 import { BinanceResponseValidator } from './validator';
 import { BinanceCache } from './cache';
 
+/**
+ * Binance REST API client for public market data endpoints.
+ *
+ * This client only uses public endpoints that do not require API authentication.
+ * All methods access market data (klines, ticker, etc.) that is freely available
+ * without API keys. Default rate limit is 1200 requests per minute for public endpoints.
+ */
 export class BinanceRestClient {
   private axiosInstance: AxiosInstance;
   private cache: BinanceCache;
@@ -20,7 +27,7 @@ export class BinanceRestClient {
 
   constructor(config?: BinanceClientConfig) {
     const baseURL = config?.baseUrl || 'https://api.binance.com';
-    
+
     this.axiosInstance = axios.create({
       baseURL,
       timeout: 30000,
@@ -30,7 +37,7 @@ export class BinanceRestClient {
     });
 
     this.cache = new BinanceCache(config?.cacheTTL || 60000);
-    
+
     this.retryConfig = {
       maxRetries: config?.maxRetries || 3,
       retryDelay: config?.retryDelay || 1000,
@@ -38,7 +45,7 @@ export class BinanceRestClient {
     };
 
     this.rateLimit = config?.rateLimit || {
-      maxRequests: 20,
+      maxRequests: 1200,
       perMinutes: 1,
     };
   }
@@ -49,20 +56,21 @@ export class BinanceRestClient {
     limit: number = 500
   ): Promise<KlineData[]> {
     const cacheKey: CacheKey = { symbol, timeframe, limit };
-    
+
     const cached = this.cache.get(cacheKey);
     if (cached) {
       return cached;
     }
 
-    const data = await this.fetchWithRetry(
-      '/api/v3/klines',
-      { symbol, interval: timeframe, limit }
-    );
+    const data = await this.fetchWithRetry('/api/v3/klines', {
+      symbol,
+      interval: timeframe,
+      limit,
+    });
 
     const klines = this.transformKlineResponse(data);
     this.cache.set(cacheKey, klines);
-    
+
     return klines;
   }
 
@@ -74,7 +82,7 @@ export class BinanceRestClient {
     limit: number = 1000
   ): Promise<KlineData[]> {
     const cacheKey: CacheKey = { symbol, timeframe, startTime, endTime, limit };
-    
+
     const cached = this.cache.get(cacheKey);
     if (cached) {
       return cached;
@@ -87,9 +95,9 @@ export class BinanceRestClient {
 
     const data = await this.fetchWithRetry('/api/v3/klines', params);
     const klines = this.transformKlineResponse(data);
-    
+
     this.cache.set(cacheKey, klines, 300000);
-    
+
     return klines;
   }
 
@@ -164,7 +172,7 @@ export class BinanceRestClient {
         console.log(
           `Request failed (attempt ${attempt}/${this.retryConfig.maxRetries}). Retrying in ${delay}ms...`
         );
-        
+
         await this.sleep(delay);
         return this.fetchWithRetry(endpoint, params, attempt + 1);
       }
@@ -177,9 +185,7 @@ export class BinanceRestClient {
         throw new Error('API access restricted in your region.');
       }
 
-      throw new Error(
-        `Failed to fetch data from Binance: ${axiosError.message}`
-      );
+      throw new Error(`Failed to fetch data from Binance: ${axiosError.message}`);
     }
   }
 
@@ -197,10 +203,7 @@ export class BinanceRestClient {
   }
 
   private calculateBackoff(attempt: number): number {
-    return (
-      this.retryConfig.retryDelay *
-      Math.pow(this.retryConfig.backoffMultiplier, attempt - 1)
-    );
+    return this.retryConfig.retryDelay * Math.pow(this.retryConfig.backoffMultiplier, attempt - 1);
   }
 
   private async checkRateLimit(): Promise<void> {
@@ -214,9 +217,7 @@ export class BinanceRestClient {
 
     if (this.requestCount >= this.rateLimit.maxRequests) {
       const waitTime = windowDuration - (now - this.requestWindowStart);
-      console.log(
-        `Rate limit reached. Waiting ${Math.ceil(waitTime / 1000)}s...`
-      );
+      console.log(`Rate limit reached. Waiting ${Math.ceil(waitTime / 1000)}s...`);
       await this.sleep(waitTime);
       this.requestCount = 0;
       this.requestWindowStart = Date.now();
@@ -226,7 +227,7 @@ export class BinanceRestClient {
   }
 
   private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   private transformKlineResponse(data: any[]): KlineData[] {

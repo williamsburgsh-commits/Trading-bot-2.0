@@ -11,6 +11,7 @@ A comprehensive TypeScript module for fetching historical candles and real-time 
 - **Rate Limiting**: Built-in request throttling
 - **Typed Events**: Strongly-typed event emitters for downstream modules
 - **Error Handling**: Graceful handling of rate limits and network failures
+- **No Authentication Required**: Works with public endpoints only (no API keys needed)
 
 ## Supported Assets
 
@@ -37,6 +38,12 @@ npm install --save-dev @types/ws
 
 ## Usage
 
+### Authentication
+
+**No API keys are required.** This module only uses Binance's public endpoints for fetching market data (klines, ticker, etc.). All functionality works without any authentication credentials.
+
+Public endpoints have a rate limit of **1200 requests per minute** per IP address.
+
 ### Basic Setup
 
 ```typescript
@@ -50,7 +57,7 @@ const client = new BinanceDataClient({
   retryDelay: 1000,
   backoffMultiplier: 2,
   rateLimit: {
-    maxRequests: 20,
+    maxRequests: 1200, // Public endpoint limit
     perMinutes: 1,
   },
 });
@@ -180,9 +187,10 @@ The REST client implements exponential backoff for failed requests:
 
 Built-in rate limiting to respect Binance API limits:
 
-- Configurable requests per minute (default: 20 per minute)
+- Configurable requests per minute (default: 1200 per minute for public endpoints)
 - Automatic throttling when limit reached
 - Per-client tracking (not shared across instances)
+- Public endpoints allow up to 1200 requests per minute per IP
 
 ### Caching
 
@@ -321,7 +329,7 @@ interface ConnectionStatusEvent {
 - Cache is in-memory only (not persisted across restarts)
 - No support for other Binance endpoints (only klines)
 - WebSocket is one-way (no subscriptions for depth, trades, etc.)
-- No authentication (public endpoints only)
+- Public endpoints only (no authentication support for private account endpoints)
 
 ## Future Enhancements
 

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { BinanceRestClient } from '../rest-client';
-import { 
-  generateMockBinanceKlines, 
+import {
+  generateMockBinanceKlines,
   mockApiResponses,
   generateInvalidBinanceKline,
 } from './fixtures';
@@ -14,11 +14,11 @@ describe('BinanceRestClient', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     mockedAxios.create = jest.fn().mockReturnValue({
       get: jest.fn(),
     });
-    
+
     client = new BinanceRestClient({
       baseUrl: 'https://api.binance.com',
       cacheTTL: 60000,
@@ -73,7 +73,7 @@ describe('BinanceRestClient', () => {
 
     it('should throw error for invalid response format', async () => {
       const mockAxiosInstance = (client as any).axiosInstance;
-      mockAxiosInstance.get = jest.fn().mockResolvedValue({ 
+      mockAxiosInstance.get = jest.fn().mockResolvedValue({
         data: [generateInvalidBinanceKline()],
       });
 
@@ -90,13 +90,7 @@ describe('BinanceRestClient', () => {
       const startTime = Date.now() - 1000 * 60 * 60 * 24;
       const endTime = Date.now();
 
-      const result = await client.getHistoricalKlines(
-        'BTCUSDT',
-        '1h',
-        startTime,
-        endTime,
-        1000
-      );
+      const result = await client.getHistoricalKlines('BTCUSDT', '1h', startTime, endTime, 1000);
 
       expect(result).toHaveLength(1000);
       expect(mockAxiosInstance.get).toHaveBeenCalledWith('/api/v3/klines', {
@@ -128,10 +122,11 @@ describe('BinanceRestClient', () => {
     it('should fetch data in multiple chunks', async () => {
       const mockData = generateMockBinanceKlines(1000);
       const mockAxiosInstance = (client as any).axiosInstance;
-      
+
       (client as any).rateLimit = { maxRequests: 1000, perMinutes: 1 };
-      
-      mockAxiosInstance.get = jest.fn()
+
+      mockAxiosInstance.get = jest
+        .fn()
         .mockResolvedValueOnce({ data: mockData })
         .mockResolvedValueOnce({ data: mockData })
         .mockResolvedValueOnce({ data: mockData.slice(0, 500) });
@@ -139,12 +134,7 @@ describe('BinanceRestClient', () => {
       const startTime = Date.now() - 1000 * 60 * 60 * 24;
       const endTime = startTime + 1000 * 60 * 60 * 2;
 
-      const result = await client.bulkHistoricalDownload(
-        'BTCUSDT',
-        '1h',
-        startTime,
-        endTime
-      );
+      const result = await client.bulkHistoricalDownload('BTCUSDT', '1h', startTime, endTime);
 
       expect(result.length).toBeGreaterThanOrEqual(1000);
       expect(mockAxiosInstance.get).toHaveBeenCalled();
@@ -158,12 +148,7 @@ describe('BinanceRestClient', () => {
       const startTime = Date.now() - 1000 * 60 * 60 * 24;
       const endTime = Date.now();
 
-      const result = await client.bulkHistoricalDownload(
-        'BTCUSDT',
-        '1h',
-        startTime,
-        endTime
-      );
+      const result = await client.bulkHistoricalDownload('BTCUSDT', '1h', startTime, endTime);
 
       expect(result).toHaveLength(500);
       expect(mockAxiosInstance.get).toHaveBeenCalledTimes(1);
@@ -174,8 +159,9 @@ describe('BinanceRestClient', () => {
     it('should retry on server error', async () => {
       const mockData = generateMockBinanceKlines(100);
       const mockAxiosInstance = (client as any).axiosInstance;
-      
-      mockAxiosInstance.get = jest.fn()
+
+      mockAxiosInstance.get = jest
+        .fn()
         .mockRejectedValueOnce({ response: { status: 500 } })
         .mockResolvedValueOnce({ data: mockData });
 
@@ -188,8 +174,9 @@ describe('BinanceRestClient', () => {
     it('should retry on rate limit error', async () => {
       const mockData = generateMockBinanceKlines(100);
       const mockAxiosInstance = (client as any).axiosInstance;
-      
-      mockAxiosInstance.get = jest.fn()
+
+      mockAxiosInstance.get = jest
+        .fn()
         .mockRejectedValueOnce({ response: { status: 429 } })
         .mockResolvedValueOnce({ data: mockData });
 
@@ -201,8 +188,8 @@ describe('BinanceRestClient', () => {
 
     it('should fail after max retries', async () => {
       const mockAxiosInstance = (client as any).axiosInstance;
-      
-      mockAxiosInstance.get = jest.fn().mockRejectedValue({ 
+
+      mockAxiosInstance.get = jest.fn().mockRejectedValue({
         response: { status: 500 },
         message: 'Internal Server Error',
       });
@@ -213,8 +200,8 @@ describe('BinanceRestClient', () => {
 
     it('should not retry on client error', async () => {
       const mockAxiosInstance = (client as any).axiosInstance;
-      
-      mockAxiosInstance.get = jest.fn().mockRejectedValue({ 
+
+      mockAxiosInstance.get = jest.fn().mockRejectedValue({
         response: { status: 400 },
         message: 'Bad Request',
       });
@@ -226,8 +213,9 @@ describe('BinanceRestClient', () => {
     it('should apply exponential backoff', async () => {
       const mockData = generateMockBinanceKlines(100);
       const mockAxiosInstance = (client as any).axiosInstance;
-      
-      mockAxiosInstance.get = jest.fn()
+
+      mockAxiosInstance.get = jest
+        .fn()
         .mockRejectedValueOnce({ response: { status: 500 } })
         .mockRejectedValueOnce({ response: { status: 500 } })
         .mockResolvedValueOnce({ data: mockData });
@@ -243,8 +231,8 @@ describe('BinanceRestClient', () => {
   describe('error handling', () => {
     it('should throw specific error for rate limit', async () => {
       const mockAxiosInstance = (client as any).axiosInstance;
-      
-      mockAxiosInstance.get = jest.fn().mockRejectedValue({ 
+
+      mockAxiosInstance.get = jest.fn().mockRejectedValue({
         response: { status: 429 },
         message: 'Too Many Requests',
       });
@@ -254,8 +242,8 @@ describe('BinanceRestClient', () => {
 
     it('should throw specific error for geo-restriction', async () => {
       const mockAxiosInstance = (client as any).axiosInstance;
-      
-      mockAxiosInstance.get = jest.fn().mockRejectedValue({ 
+
+      mockAxiosInstance.get = jest.fn().mockRejectedValue({
         response: { status: 451 },
         message: 'Unavailable For Legal Reasons',
       });
@@ -265,8 +253,8 @@ describe('BinanceRestClient', () => {
 
     it('should throw generic error for network issues', async () => {
       const mockAxiosInstance = (client as any).axiosInstance;
-      
-      mockAxiosInstance.get = jest.fn().mockRejectedValue({ 
+
+      mockAxiosInstance.get = jest.fn().mockRejectedValue({
         message: 'Network Error',
       });
 

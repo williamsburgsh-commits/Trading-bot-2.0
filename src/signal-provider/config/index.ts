@@ -1,8 +1,8 @@
 import 'dotenv/config';
 
 export interface BinanceConfig {
-  apiKey: string;
-  apiSecret: string;
+  apiKey?: string;
+  apiSecret?: string;
   baseUrl: string;
 }
 
@@ -63,10 +63,13 @@ function validateConfig(config: ServiceConfig): void {
 }
 
 export function loadConfig(): ServiceConfig {
+  const apiKey = getOptionalEnv('BINANCE_API_KEY', '');
+  const apiSecret = getOptionalEnv('BINANCE_API_SECRET', '');
+
   const config: ServiceConfig = {
     binance: {
-      apiKey: getOptionalEnv('BINANCE_API_KEY', ''),
-      apiSecret: getOptionalEnv('BINANCE_API_SECRET', ''),
+      apiKey: apiKey || undefined,
+      apiSecret: apiSecret || undefined,
       baseUrl: getOptionalEnv('BINANCE_API_URL', 'https://api.binance.com'),
     },
     database: {
@@ -77,7 +80,7 @@ export function loadConfig(): ServiceConfig {
       format: getOptionalEnv('LOG_FORMAT', 'pretty') as 'json' | 'pretty',
     },
     rateLimit: {
-      maxRequests: parseInt(getOptionalEnv('RATE_LIMIT_MAX', '20')),
+      maxRequests: parseInt(getOptionalEnv('RATE_LIMIT_MAX', '1200')),
       perMinutes: parseInt(getOptionalEnv('RATE_LIMIT_MINUTES', '1')),
     },
   };

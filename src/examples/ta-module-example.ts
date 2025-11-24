@@ -1,15 +1,12 @@
 import 'dotenv/config';
 import { MarketDataService } from '../services/marketData';
-import {
-  computeIndicators,
-  computeMultiTimeframeIndicators,
-} from '../modules/technical-analysis';
+import { computeIndicators, computeMultiTimeframeIndicators } from '../modules/technical-analysis';
 
 async function basicExample() {
   console.log('\n=== Basic Indicator Computation Example ===\n');
 
   const marketData = new MarketDataService();
-  
+
   try {
     const klines = await marketData.getKlines('BTCUSDT', '1h', 250);
     const snapshot = computeIndicators(klines, 'BTCUSDT', '1h');
@@ -68,10 +65,10 @@ async function customConfigExample() {
   console.log('\n=== Custom Configuration Example ===\n');
 
   const marketData = new MarketDataService();
-  
+
   try {
     const klines = await marketData.getKlines('ETHUSDT', '4h', 250);
-    
+
     const customConfig = {
       rsi: {
         period: 21,
@@ -107,9 +104,13 @@ async function customConfigExample() {
       console.log(`Asset: ${snapshot.asset}`);
       console.log(`Timeframe: ${snapshot.timeframe}`);
       console.log(`RSI (${snapshot.rsi.period}): ${snapshot.rsi.value.toFixed(2)}`);
-      console.log(`MACD (${snapshot.macd.fastPeriod}/${snapshot.macd.slowPeriod}/${snapshot.macd.signalPeriod}): ${snapshot.macd.histogram.toFixed(2)}`);
-      console.log(`BB (${snapshot.bollingerBands.period}, ${snapshot.bollingerBands.stdDev}σ): %B = ${snapshot.bollingerBands.percentB.toFixed(2)}`);
-      
+      console.log(
+        `MACD (${snapshot.macd.fastPeriod}/${snapshot.macd.slowPeriod}/${snapshot.macd.signalPeriod}): ${snapshot.macd.histogram.toFixed(2)}`
+      );
+      console.log(
+        `BB (${snapshot.bollingerBands.period}, ${snapshot.bollingerBands.stdDev}σ): %B = ${snapshot.bollingerBands.percentB.toFixed(2)}`
+      );
+
       console.log('\nCustom SMA Periods:');
       for (const period in snapshot.sma) {
         console.log(`  SMA ${period}: $${snapshot.sma[period]!.value.toFixed(2)}`);
@@ -130,10 +131,10 @@ async function multiTimeframeExample() {
 
   const marketData = new MarketDataService();
   const asset = 'BTCUSDT';
-  
+
   try {
     console.log(`Fetching data for ${asset} across multiple timeframes...`);
-    
+
     const timeframes = ['15m', '1h', '4h'];
     const klinesByTimeframe = new Map();
 
@@ -154,8 +155,12 @@ async function multiTimeframeExample() {
       if (snapshot) {
         console.log(`${tf} Timeframe:`);
         console.log(`  Price: $${snapshot.price.toFixed(2)}`);
-        console.log(`  RSI: ${snapshot.rsi.value.toFixed(2)} ${snapshot.rsi.overbought ? '(Overbought)' : snapshot.rsi.oversold ? '(Oversold)' : ''}`);
-        console.log(`  MACD: ${snapshot.macd.histogram.toFixed(2)} ${snapshot.macd.bullish ? '(Bullish)' : snapshot.macd.bearish ? '(Bearish)' : ''}`);
+        console.log(
+          `  RSI: ${snapshot.rsi.value.toFixed(2)} ${snapshot.rsi.overbought ? '(Overbought)' : snapshot.rsi.oversold ? '(Oversold)' : ''}`
+        );
+        console.log(
+          `  MACD: ${snapshot.macd.histogram.toFixed(2)} ${snapshot.macd.bullish ? '(Bullish)' : snapshot.macd.bearish ? '(Bearish)' : ''}`
+        );
         console.log(`  BB %B: ${snapshot.bollingerBands.percentB.toFixed(2)}`);
         console.log(`  Volume Ratio: ${snapshot.volume.ratio.toFixed(2)}x`);
         console.log('');
@@ -163,13 +168,13 @@ async function multiTimeframeExample() {
     }
 
     console.log('--- Trend Alignment Analysis ---\n');
-    
-    const allBullish = timeframes.every(tf => {
+
+    const allBullish = timeframes.every((tf) => {
       const snapshot = multiTF[`${asset}_${tf}`];
       return snapshot && snapshot.macd.bullish && snapshot.rsi.value > 50;
     });
 
-    const allBearish = timeframes.every(tf => {
+    const allBearish = timeframes.every((tf) => {
       const snapshot = multiTF[`${asset}_${tf}`];
       return snapshot && snapshot.macd.bearish && snapshot.rsi.value < 50;
     });
@@ -181,7 +186,6 @@ async function multiTimeframeExample() {
     } else {
       console.log('⚠ Mixed signals across timeframes');
     }
-
   } catch (error) {
     console.error('Error in multi-timeframe example:', error);
   }
@@ -191,7 +195,7 @@ async function signalDetectionExample() {
   console.log('\n=== Signal Detection Example ===\n');
 
   const marketData = new MarketDataService();
-  
+
   try {
     const klines = await marketData.getKlines('BTCUSDT', '1h', 250);
     const snapshot = computeIndicators(klines, 'BTCUSDT', '1h');
@@ -246,7 +250,9 @@ async function signalDetectionExample() {
       console.log('\nRisk Management:');
       const atrStop = snapshot.atr.value * 2;
       console.log(`  Suggested Stop Loss: ±$${atrStop.toFixed(2)} (2x ATR)`);
-      console.log(`  BB Width: ${(snapshot.bollingerBands.bandwidth * 100).toFixed(2)}% (Volatility)`);
+      console.log(
+        `  BB Width: ${(snapshot.bollingerBands.bandwidth * 100).toFixed(2)}% (Volatility)`
+      );
     }
   } catch (error) {
     console.error('Error in signal detection example:', error);

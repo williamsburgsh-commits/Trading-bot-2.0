@@ -80,9 +80,13 @@ export class BinanceResponseValidator {
       return false;
     }
 
-    if (typeof open !== 'string' || typeof high !== 'string' || 
-        typeof low !== 'string' || typeof close !== 'string' || 
-        typeof volume !== 'string') {
+    if (
+      typeof open !== 'string' ||
+      typeof high !== 'string' ||
+      typeof low !== 'string' ||
+      typeof close !== 'string' ||
+      typeof volume !== 'string'
+    ) {
       return false;
     }
 
@@ -92,13 +96,17 @@ export class BinanceResponseValidator {
     const closeNum = parseFloat(close);
     const volumeNum = parseFloat(volume);
 
-    if (isNaN(openNum) || isNaN(highNum) || isNaN(lowNum) || 
-        isNaN(closeNum) || isNaN(volumeNum)) {
+    if (isNaN(openNum) || isNaN(highNum) || isNaN(lowNum) || isNaN(closeNum) || isNaN(volumeNum)) {
       return false;
     }
 
-    if (highNum < lowNum || highNum < openNum || highNum < closeNum || 
-        lowNum > openNum || lowNum > closeNum) {
+    if (
+      highNum < lowNum ||
+      highNum < openNum ||
+      highNum < closeNum ||
+      lowNum > openNum ||
+      lowNum > closeNum
+    ) {
       return false;
     }
 

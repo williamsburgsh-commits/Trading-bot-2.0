@@ -22,10 +22,7 @@ describe('BinanceResponseValidator', () => {
     });
 
     it('should reject array with invalid kline data', () => {
-      const invalidKlines = [
-        generateMockBinanceKline(),
-        generateInvalidBinanceKline(),
-      ];
+      const invalidKlines = [generateMockBinanceKline(), generateInvalidBinanceKline()];
       const result = BinanceResponseValidator.validateKlineResponse(invalidKlines);
       expect(result).toBe(false);
     });
@@ -40,7 +37,7 @@ describe('BinanceResponseValidator', () => {
     it('should validate a valid kline array', () => {
       const mockKline = generateMockBinanceKline();
       const result = BinanceResponseValidator.validateKlineArray(mockKline);
-      
+
       expect(result).not.toBeNull();
       expect(result).toHaveProperty('openTime');
       expect(result).toHaveProperty('open');

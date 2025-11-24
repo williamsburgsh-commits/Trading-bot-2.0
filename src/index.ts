@@ -18,9 +18,9 @@ async function main() {
     for (const asset of config.monitor.assets) {
       for (const timeframe of config.monitor.timeframes) {
         console.log(`Analyzing ${asset} on ${timeframe}...`);
-        
+
         const signals = await signalEngine.generateSignals(asset, timeframe);
-        
+
         for (const signal of signals) {
           const savedSignal = await db.saveSignal(signal);
           console.log(`Signal saved: ${savedSignal.id}`);

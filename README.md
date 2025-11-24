@@ -71,10 +71,12 @@ cp .env.example .env
 
 Key configuration options:
 
+- `BINANCE_API_KEY` / `BINANCE_API_SECRET`: **Optional** - Only needed for private account endpoints. Public price data works without authentication.
 - `MONITOR_INTERVAL`: Cron expression for scan frequency (e.g., `*/5 * * * *` for every 5 minutes)
 - `ASSETS`: Comma-separated list of trading pairs (e.g., `BTCUSDT,ETHUSDT`)
 - `TIMEFRAMES`: Comma-separated list of timeframes (e.g., `15m,1h,4h`)
 - `RSI_OVERSOLD`/`RSI_OVERBOUGHT`: RSI thresholds for signals
+- `RATE_LIMIT_MAX`: API rate limit (default: 1200 req/min for public endpoints)
 - `WEBHOOK_URL`: Optional webhook endpoint for alerts
 
 ## Usage

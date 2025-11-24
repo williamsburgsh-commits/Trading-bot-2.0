@@ -36,7 +36,7 @@ export class AlertingService {
     console.log(`Take Profit: ${signal.takeProfit}`);
     console.log(`Stop Loss: ${signal.stopLoss}`);
     console.log(`Status: ${signal.status}`);
-    
+
     if (signal.metadata) {
       try {
         const metadata = JSON.parse(signal.metadata);
@@ -49,7 +49,7 @@ export class AlertingService {
         console.log(`Metadata: ${signal.metadata}`);
       }
     }
-    
+
     console.log(`Created At: ${signal.createdAt || new Date()}`);
     console.log('='.repeat(60) + '\n');
   }

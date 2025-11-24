@@ -31,13 +31,7 @@ async function main() {
   try {
     const startTime = Date.now() - 24 * 60 * 60 * 1000;
     const endTime = Date.now();
-    const historical = await client.getHistoricalKlines(
-      'ETHUSDT',
-      '15m',
-      startTime,
-      endTime,
-      50
-    );
+    const historical = await client.getHistoricalKlines('ETHUSDT', '15m', startTime, endTime, 50);
     console.log(`✓ Fetched ${historical.length} historical klines for ETHUSDT`);
     console.log();
   } catch (error: any) {
@@ -49,12 +43,7 @@ async function main() {
   try {
     const startTime = Date.now() - 7 * 24 * 60 * 60 * 1000;
     const endTime = Date.now();
-    const bulkData = await client.bulkHistoricalDownload(
-      'XRPUSDT',
-      '1h',
-      startTime,
-      endTime
-    );
+    const bulkData = await client.bulkHistoricalDownload('XRPUSDT', '1h', startTime, endTime);
     console.log(`✓ Downloaded ${bulkData.length} klines for XRPUSDT (7 days)`);
     console.log();
   } catch (error: any) {
@@ -66,13 +55,13 @@ async function main() {
   try {
     const cache = client.getCache();
     console.log(`Cache size before: ${cache.size()}`);
-    
+
     await client.getKlines('SOLUSDT', '5m', 20);
     console.log(`Cache size after fetch: ${cache.size()}`);
-    
+
     await client.getKlines('SOLUSDT', '5m', 20);
     console.log(`Cache size after cached fetch: ${cache.size()}`);
-    
+
     client.clearCache();
     console.log(`Cache size after clear: ${cache.size()}`);
     console.log();
@@ -82,7 +71,7 @@ async function main() {
   }
 
   console.log('5. Setting up WebSocket real-time updates...');
-  
+
   client.onKlineUpdate((event) => {
     console.log(
       `📊 ${event.symbol} ${event.timeframe} - Close: ${event.kline.close} ${
@@ -99,10 +88,7 @@ async function main() {
     console.error('❌ WebSocket error:', error.message);
   });
 
-  client.subscribeMultiple(
-    ['BTCUSDT', 'ETHUSDT'],
-    ['1h', '4h']
-  );
+  client.subscribeMultiple(['BTCUSDT', 'ETHUSDT'], ['1h', '4h']);
 
   console.log('Subscribed to real-time updates for BTCUSDT and ETHUSDT (1h, 4h)');
   console.log('Listening for 30 seconds...\n');
@@ -112,11 +98,11 @@ async function main() {
   console.log('\n6. Getting latest klines from WebSocket cache...');
   const btcKline = client.getLatestKline('BTCUSDT', '1h');
   const ethKline = client.getLatestKline('ETHUSDT', '4h');
-  
+
   if (btcKline) {
     console.log(`BTCUSDT 1h latest close: ${btcKline.close}`);
   }
-  
+
   if (ethKline) {
     console.log(`ETHUSDT 4h latest close: ${ethKline.close}`);
   }

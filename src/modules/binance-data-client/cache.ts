@@ -70,7 +70,7 @@ export class BinanceCache {
       }
     }
 
-    keysToDelete.forEach(key => this.cache.delete(key));
+    keysToDelete.forEach((key) => this.cache.delete(key));
   }
 
   invalidateTimeframe(timeframe: BinanceTimeframe): void {
@@ -82,7 +82,7 @@ export class BinanceCache {
       }
     }
 
-    keysToDelete.forEach(key => this.cache.delete(key));
+    keysToDelete.forEach((key) => this.cache.delete(key));
   }
 
   clear(): void {
@@ -99,7 +99,7 @@ export class BinanceCache {
       }
     }
 
-    keysToDelete.forEach(key => this.cache.delete(key));
+    keysToDelete.forEach((key) => this.cache.delete(key));
   }
 
   size(): number {
@@ -108,15 +108,15 @@ export class BinanceCache {
 
   private generateKey(key: CacheKey): string {
     const parts: string[] = [key.symbol, key.timeframe];
-    
+
     if (key.limit !== undefined) {
       parts.push(`limit:${key.limit}`);
     }
-    
+
     if (key.startTime !== undefined) {
       parts.push(`start:${key.startTime}`);
     }
-    
+
     if (key.endTime !== undefined) {
       parts.push(`end:${key.endTime}`);
     }

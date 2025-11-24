@@ -6,7 +6,7 @@ const monitor = new MonitorService();
 async function main() {
   try {
     await monitor.initialize();
-    
+
     monitor.start();
 
     process.on('SIGINT', async () => {

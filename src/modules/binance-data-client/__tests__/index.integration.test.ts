@@ -82,12 +82,7 @@ describe('BinanceDataClient Integration', () => {
       const startTime = Date.now() - 1000 * 60 * 60 * 24;
       const endTime = startTime + 1000 * 60 * 60 * 2;
 
-      const result = await client.bulkHistoricalDownload(
-        'BTCUSDT',
-        '1h',
-        startTime,
-        endTime
-      );
+      const result = await client.bulkHistoricalDownload('BTCUSDT', '1h', startTime, endTime);
 
       expect(result.length).toBeGreaterThan(0);
       expect(mockAxiosInstance.get).toHaveBeenCalled();
@@ -131,10 +126,7 @@ describe('BinanceDataClient Integration', () => {
 
   describe('WebSocket Integration', () => {
     it('should subscribe to real-time updates for multiple symbols', () => {
-      const symbols: Array<'BTCUSDT' | 'ETHUSDT' | 'XRPUSDT' | 'SOLUSDT'> = [
-        'BTCUSDT',
-        'ETHUSDT',
-      ];
+      const symbols: Array<'BTCUSDT' | 'ETHUSDT' | 'XRPUSDT' | 'SOLUSDT'> = ['BTCUSDT', 'ETHUSDT'];
       const timeframes: Array<'5m' | '15m' | '1h' | '4h'> = ['1h', '4h'];
 
       expect(() => {
@@ -193,7 +185,7 @@ describe('BinanceDataClient Integration', () => {
 
     it('should retrieve latest kline for subscribed stream', () => {
       client.subscribeRealtime('BTCUSDT', '1h');
-      
+
       const kline = client.getLatestKline('BTCUSDT', '1h');
       expect(kline).toBeNull();
     });
@@ -243,9 +235,7 @@ describe('BinanceDataClient Integration', () => {
   describe('Error Scenarios', () => {
     it('should handle REST API failures gracefully', async () => {
       const mockAxiosInstance = mockedAxios.create();
-      (mockAxiosInstance.get as jest.Mock).mockRejectedValue(
-        new Error('Network error')
-      );
+      (mockAxiosInstance.get as jest.Mock).mockRejectedValue(new Error('Network error'));
 
       (client as any).restClient.axiosInstance = mockAxiosInstance;
 
@@ -261,9 +251,7 @@ describe('BinanceDataClient Integration', () => {
 
       (client as any).restClient.axiosInstance = mockAxiosInstance;
 
-      await expect(client.getKlines('BTCUSDT', '1h', 100)).rejects.toThrow(
-        'Rate limit exceeded'
-      );
+      await expect(client.getKlines('BTCUSDT', '1h', 100)).rejects.toThrow('Rate limit exceeded');
     });
   });
 });

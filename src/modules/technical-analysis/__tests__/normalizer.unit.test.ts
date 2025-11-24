@@ -37,26 +37,28 @@ describe('Normalizer', () => {
     });
 
     it('should parse string numbers correctly', () => {
-      const klines = [{
-        openTime: 1000,
-        open: '100.50',
-        high: '105.75',
-        low: '99.25',
-        close: '103.00',
-        volume: '1500.50',
-        closeTime: 2000,
-        quoteVolume: '150000',
-        trades: 100,
-        takerBuyBaseVolume: '750',
-        takerBuyQuoteVolume: '75000',
-      }];
+      const klines = [
+        {
+          openTime: 1000,
+          open: '100.50',
+          high: '105.75',
+          low: '99.25',
+          close: '103.00',
+          volume: '1500.50',
+          closeTime: 2000,
+          quoteVolume: '150000',
+          trades: 100,
+          takerBuyBaseVolume: '750',
+          takerBuyQuoteVolume: '75000',
+        },
+      ];
 
       const normalized = normalizeKlineData(klines);
-      expect(normalized[0]!.open).toBe(100.50);
+      expect(normalized[0]!.open).toBe(100.5);
       expect(normalized[0]!.high).toBe(105.75);
       expect(normalized[0]!.low).toBe(99.25);
-      expect(normalized[0]!.close).toBe(103.00);
-      expect(normalized[0]!.volume).toBe(1500.50);
+      expect(normalized[0]!.close).toBe(103.0);
+      expect(normalized[0]!.volume).toBe(1500.5);
     });
   });
 
@@ -129,9 +131,7 @@ describe('Normalizer', () => {
     });
 
     it('should reject candles with zero prices', () => {
-      const invalid = [
-        { timestamp: 1000, open: 0, high: 105, low: 95, close: 102, volume: 1000 },
-      ];
+      const invalid = [{ timestamp: 1000, open: 0, high: 105, low: 95, close: 102, volume: 1000 }];
       expect(validateCandles(invalid)).toBe(false);
     });
 
@@ -143,9 +143,7 @@ describe('Normalizer', () => {
     });
 
     it('should reject candles where high < close', () => {
-      const invalid = [
-        { timestamp: 1000, open: 100, high: 95, low: 90, close: 102, volume: 1000 },
-      ];
+      const invalid = [{ timestamp: 1000, open: 100, high: 95, low: 90, close: 102, volume: 1000 }];
       expect(validateCandles(invalid)).toBe(false);
     });
 
@@ -157,9 +155,7 @@ describe('Normalizer', () => {
     });
 
     it('should accept candles with zero volume', () => {
-      const valid = [
-        { timestamp: 1000, open: 100, high: 105, low: 95, close: 102, volume: 0 },
-      ];
+      const valid = [{ timestamp: 1000, open: 100, high: 105, low: 95, close: 102, volume: 0 }];
       expect(validateCandles(valid)).toBe(true);
     });
 

@@ -1,11 +1,4 @@
-import {
-  RSI,
-  MACD,
-  BollingerBands,
-  SMA,
-  EMA,
-  ATR,
-} from 'technicalindicators';
+import { RSI, MACD, BollingerBands, SMA, EMA, ATR } from 'technicalindicators';
 import {
   NormalizedCandle,
   RSISnapshot,
@@ -165,10 +158,7 @@ export function calculateBollingerBands(
   };
 }
 
-export function calculateSMA(
-  candles: NormalizedCandle[],
-  period: number
-): SMASnapshot | null {
+export function calculateSMA(candles: NormalizedCandle[], period: number): SMASnapshot | null {
   if (candles.length < period) {
     return null;
   }
@@ -192,10 +182,7 @@ export function calculateSMA(
   };
 }
 
-export function calculateEMA(
-  candles: NormalizedCandle[],
-  period: number
-): EMASnapshot | null {
+export function calculateEMA(candles: NormalizedCandle[], period: number): EMASnapshot | null {
   if (candles.length < period) {
     return null;
   }
@@ -219,10 +206,7 @@ export function calculateEMA(
   };
 }
 
-export function calculateATR(
-  candles: NormalizedCandle[],
-  period: number = 14
-): ATRSnapshot | null {
+export function calculateATR(candles: NormalizedCandle[], period: number = 14): ATRSnapshot | null {
   if (candles.length < period + 1) {
     return null;
   }

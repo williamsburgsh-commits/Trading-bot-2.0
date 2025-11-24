@@ -98,9 +98,12 @@ export function generateBearishTrend(count: number, basePrice: number = 50000): 
 }
 
 export function generateKnownValuesKlines(): KlineData[] {
-  const closes = [44, 44.34, 44.09, 43.61, 44.33, 44.83, 45.10, 45.42, 45.84, 46.08, 45.89, 46.03, 45.61, 46.28, 46.28, 46.00, 46.03, 46.41, 46.22, 45.64];
+  const closes = [
+    44, 44.34, 44.09, 43.61, 44.33, 44.83, 45.1, 45.42, 45.84, 46.08, 45.89, 46.03, 45.61, 46.28,
+    46.28, 46.0, 46.03, 46.41, 46.22, 45.64,
+  ];
   const baseTime = Date.now() - closes.length * 60000;
-  
+
   return closes.map((close, i) => ({
     openTime: baseTime + i * 60000,
     open: i > 0 ? closes[i - 1]!.toFixed(2) : close.toFixed(2),

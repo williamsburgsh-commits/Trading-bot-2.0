@@ -103,10 +103,7 @@ export class DatabaseService {
     return signal as Signal;
   }
 
-  async getSignalsByTimeRange(
-    startDate: Date,
-    endDate: Date
-  ): Promise<Signal[]> {
+  async getSignalsByTimeRange(startDate: Date, endDate: Date): Promise<Signal[]> {
     const signals = await this.prisma.signal.findMany({
       where: {
         createdAt: {
