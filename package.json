@@ -10,6 +10,7 @@
     "dev:legacy": "ts-node src/index.ts",
     "monitor": "ts-node src/monitor.ts",
     "test:signals": "ts-node src/test-signals.ts",
+    "test:unified-signals": "ts-node src/test-unified-signals.ts",
     "lint": "eslint 'src/**/*.ts'",
     "lint:fix": "eslint 'src/**/*.ts' --fix",
     "format": "prettier --write 'src/**/*.ts'",

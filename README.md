@@ -1,17 +1,19 @@
 # Trading Signal Monitor
 
-An automated trading signal monitoring system that generates, stores, and alerts on cryptocurrency trading signals using technical analysis.
+An automated trading signal monitoring system that generates, stores, and alerts on cryptocurrency and forex trading signals using technical analysis.
 
 ## Features
 
 - **Technical Analysis Module**: Comprehensive TA library with RSI, MACD, Bollinger Bands, SMA/EMA (multi-period), ATR, and volume indicators
 - **Multi-Timeframe Support**: Aggregate indicators across multiple timeframes for comprehensive analysis
+- **Multi-Asset Support**: Monitor both cryptocurrency pairs (Binance) and forex pairs (Finnhub)
+  - Crypto: BTC, ETH, XRP, SOL (via Binance API)
+  - Forex: USD/JPY, EUR/USD, GBP/USD (via Finnhub API)
 - **Persistence Layer**: SQLite database via Prisma for storing signals with full metadata
 - **Signal Generation**: Technical analysis-based signal engine using multiple indicators
 - **Scheduled Monitoring**: Node-cron scheduler for periodic market scanning
-- **Multi-Asset Support**: Monitor multiple cryptocurrency pairs simultaneously
 - **Alerting System**: Console logging with pluggable webhook/email support
-- **Rate Limiting**: Built-in rate limiting to respect API limits
+- **Rate Limiting**: Built-in rate limiting to respect API limits (Binance: 1200/min, Finnhub: 80/min)
 - **Duplicate Detection**: Idempotent storage checks to prevent duplicate alerts
 - **Error Handling**: Comprehensive error logging and recovery
 - **Test Coverage**: 75+ unit and integration tests with ~89% coverage
@@ -21,26 +23,42 @@ An automated trading signal monitoring system that generates, stores, and alerts
 ```
 src/
 ├── modules/
-│   └── technical-analysis/  # Comprehensive TA module
-│       ├── types.ts         # TA type definitions
-│       ├── normalizer.ts    # Candle data normalization
-│       ├── indicators.ts    # Indicator calculations
-│       ├── index.ts         # Main module exports
-│       ├── README.md        # Module documentation
-│       └── __tests__/       # Comprehensive test suite
-├── examples/        # Usage examples
-│   └── ta-module-example.ts # TA module demonstrations
-├── config/          # Configuration management
-├── services/        # Core business logic
-│   ├── database.ts      # Database operations
-│   ├── marketData.ts    # Market data fetching
-│   ├── signalEngine.ts  # Signal generation logic
-│   ├── alerting.ts      # Alert distribution
-│   └── monitor.ts       # Main monitoring orchestration
-├── types/           # TypeScript type definitions
-├── utils/           # Utility functions
-├── index.ts         # One-time scan entry point
-└── monitor.ts       # Scheduled monitor entry point
+│   ├── binance-data-client/   # Binance REST/WebSocket client
+│   │   ├── types.ts           # Type definitions
+│   │   ├── rest-client.ts     # REST API client
+│   │   ├── websocket-client.ts # WebSocket client
+│   │   ├── cache.ts           # In-memory caching
+│   │   ├── validator.ts       # Response validation
+│   │   └── __tests__/         # Comprehensive test suite
+│   ├── finnhub-data-client/   # Finnhub forex data client
+│   │   ├── types.ts           # Type definitions
+│   │   ├── rest-client.ts     # REST API client
+│   │   ├── cache.ts           # In-memory caching
+│   │   ├── validator.ts       # Response validation
+│   │   ├── README.md          # Module documentation
+│   │   └── __tests__/         # Comprehensive test suite
+│   └── technical-analysis/    # Comprehensive TA module
+│       ├── types.ts           # TA type definitions
+│       ├── normalizer.ts      # Candle data normalization
+│       ├── indicators.ts      # Indicator calculations
+│       ├── index.ts           # Main module exports
+│       ├── README.md          # Module documentation
+│       └── __tests__/         # Comprehensive test suite
+├── services/            # Core business logic
+│   ├── database.ts          # Database operations
+│   ├── marketData.ts        # Market data fetching (legacy)
+│   ├── unifiedMarketData.ts # Unified crypto + forex data
+│   ├── signalEngine.ts      # Signal generation (legacy)
+│   ├── unifiedSignalEngine.ts # Unified signal generation
+│   ├── alerting.ts          # Alert distribution
+│   └── monitor.ts           # Main monitoring orchestration
+├── signal-provider/     # Signal provider service (IoC architecture)
+├── examples/            # Usage examples
+├── config/              # Configuration management
+├── types/               # TypeScript type definitions
+├── utils/               # Utility functions
+├── test-unified-signals.ts # Test unified signal generation
+└── index.ts             # One-time scan entry point
 ```
 
 ## Prerequisites
@@ -71,22 +89,48 @@ cp .env.example .env
 
 Key configuration options:
 
+**Binance (Crypto):**
 - `BINANCE_API_KEY` / `BINANCE_API_SECRET`: **Optional** - Only needed for private account endpoints. Public price data works without authentication.
+- `BINANCE_API_URL`: Binance API base URL (default: https://api.binance.com)
+- `RATE_LIMIT_MAX`: Binance API rate limit (default: 1200 req/min for public endpoints)
+
+**Finnhub (Forex):**
+- `FINNHUB_API_KEY`: **Required for forex signals** - Get free API key at https://finnhub.io/register
+- `FINNHUB_API_URL`: Finnhub API base URL (default: https://finnhub.io/api/v1)
+- `FINNHUB_RATE_LIMIT_MAX`: Finnhub rate limit (default: 80 calls/min for free tier)
+- `FINNHUB_RATE_LIMIT_MINUTES`: Rate limit window in minutes (default: 1)
+
+**General:**
 - `MONITOR_INTERVAL`: Cron expression for scan frequency (e.g., `*/5 * * * *` for every 5 minutes)
 - `ASSETS`: Comma-separated list of trading pairs (e.g., `BTCUSDT,ETHUSDT`)
 - `TIMEFRAMES`: Comma-separated list of timeframes (e.g., `15m,1h,4h`)
 - `RSI_OVERSOLD`/`RSI_OVERBOUGHT`: RSI thresholds for signals
-- `RATE_LIMIT_MAX`: API rate limit (default: 1200 req/min for public endpoints)
 - `WEBHOOK_URL`: Optional webhook endpoint for alerts
 
 ## Usage
 
-### Run One-Time Scan
+### Test Unified Signal Generation
 
-Run a single scan across all configured assets and timeframes:
+Generate signals for both crypto and forex assets:
 
 ```bash
-npm run dev
+npm run test:unified-signals
+```
+
+This will:
+1. Fetch market data from Binance (crypto) and Finnhub (forex)
+2. Generate signals for all supported assets (BTC, ETH, XRP, SOL, USD/JPY, EUR/USD, GBP/USD)
+3. Store signals in the database with asset type classification
+4. Display summary of generated signals
+
+Note: Requires `FINNHUB_API_KEY` to be set for forex signals.
+
+### Run One-Time Scan (Legacy)
+
+Run a single scan for crypto assets only:
+
+```bash
+npm run dev:legacy
 ```
 
 ### Start Scheduled Monitor
@@ -130,9 +174,10 @@ Signals are generated when multiple conditions align:
 
 Each signal includes:
 - Entry price
-- Take profit (2% above entry for buy, 2% below for sell)
-- Stop loss (2% below entry for buy, 2% above for sell)
-- Metadata (RSI, MACD, volume ratio, volatility)
+- Take profit and stop loss (risk-adjusted based on asset type)
+  - Crypto: 2% risk, 2:1 reward ratio
+  - Forex: 0.5% risk, 2:1 reward ratio (tighter spreads)
+- Metadata (asset type, RSI, MACD, volume ratio, volatility)
 
 ## Duplicate Detection
 
