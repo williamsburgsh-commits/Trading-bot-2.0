@@ -6,6 +6,15 @@ export interface BinanceConfig {
   baseUrl: string;
 }
 
+export interface FinnhubConfig {
+  apiKey?: string;
+  baseUrl: string;
+  rateLimit: {
+    maxRequests: number;
+    perMinutes: number;
+  };
+}
+
 export interface DatabaseConfig {
   url: string;
 }
@@ -22,6 +31,7 @@ export interface RateLimitConfig {
 
 export interface ServiceConfig {
   binance: BinanceConfig;
+  finnhub: FinnhubConfig;
   database: DatabaseConfig;
   logging: LoggingConfig;
   rateLimit: RateLimitConfig;
@@ -41,6 +51,18 @@ function getOptionalEnv(key: string, defaultValue: string): string {
 function validateConfig(config: ServiceConfig): void {
   if (!config.binance.baseUrl.startsWith('http')) {
     throw new ConfigurationError('BINANCE_API_URL must be a valid HTTP(S) URL');
+  }
+
+  if (!config.finnhub.baseUrl.startsWith('http')) {
+    throw new ConfigurationError('FINNHUB_API_URL must be a valid HTTP(S) URL');
+  }
+
+  if (config.finnhub.rateLimit.maxRequests <= 0) {
+    throw new ConfigurationError('FINNHUB_RATE_LIMIT_MAX must be a positive number');
+  }
+
+  if (config.finnhub.rateLimit.perMinutes <= 0) {
+    throw new ConfigurationError('FINNHUB_RATE_LIMIT_MINUTES must be a positive number');
   }
 
   if (config.rateLimit.maxRequests <= 0) {
@@ -65,12 +87,21 @@ function validateConfig(config: ServiceConfig): void {
 export function loadConfig(): ServiceConfig {
   const apiKey = getOptionalEnv('BINANCE_API_KEY', '');
   const apiSecret = getOptionalEnv('BINANCE_API_SECRET', '');
+  const finnhubApiKey = getOptionalEnv('FINNHUB_API_KEY', '');
 
   const config: ServiceConfig = {
     binance: {
       apiKey: apiKey || undefined,
       apiSecret: apiSecret || undefined,
       baseUrl: getOptionalEnv('BINANCE_API_URL', 'https://api.binance.com'),
+    },
+    finnhub: {
+      apiKey: finnhubApiKey || undefined,
+      baseUrl: getOptionalEnv('FINNHUB_API_URL', 'https://finnhub.io/api/v1'),
+      rateLimit: {
+        maxRequests: parseInt(getOptionalEnv('FINNHUB_RATE_LIMIT_MAX', '80')),
+        perMinutes: parseInt(getOptionalEnv('FINNHUB_RATE_LIMIT_MINUTES', '1')),
+      },
     },
     database: {
       url: getOptionalEnv('DATABASE_URL', 'file:./dev.db'),
