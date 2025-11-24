@@ -7,12 +7,15 @@ import prettierConfig from 'eslint-config-prettier';
 export default [
   eslint.configs.recommended,
   {
-    files: ['src/**/*.ts'],
+    files: ['src/**/*.ts', 'app/**/*.ts', 'app/**/*.tsx', 'components/**/*.ts', 'components/**/*.tsx', 'lib/**/*.ts'],
     languageOptions: {
       parser: tsparser,
       parserOptions: {
         ecmaVersion: 2020,
         sourceType: 'module',
+        ecmaFeatures: {
+          jsx: true,
+        },
         project: './tsconfig.json',
       },
       globals: {
@@ -25,6 +28,7 @@ export default [
         clearTimeout: 'readonly',
         setInterval: 'readonly',
         clearInterval: 'readonly',
+        React: 'readonly',
       },
     },
     plugins: {
@@ -46,6 +50,6 @@ export default [
     },
   },
   {
-    ignores: ['dist/', 'node_modules/', 'coverage/', '*.js', '*.mjs'],
+    ignores: ['dist/', 'node_modules/', 'coverage/', '.next/', '*.js', '*.mjs'],
   },
 ];
