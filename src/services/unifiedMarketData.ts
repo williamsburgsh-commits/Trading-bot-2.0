@@ -1,10 +1,10 @@
 import { KlineData } from '../types';
 import { BinanceDataClient, BinanceSymbol, BinanceTimeframe } from '../modules/binance-data-client';
-import { FinnhubDataClient, FinnhubForexPair, FinnhubTimeframe } from '../modules/finnhub-data-client';
+import { AlphaVantageDataClient, AlphaVantageForexPair, AlphaVantageTimeframe } from '../modules/alphavantage-data-client';
 
 export type AssetType = 'crypto' | 'forex';
 export type CryptoSymbol = BinanceSymbol;
-export type ForexSymbol = FinnhubForexPair;
+export type ForexSymbol = AlphaVantageForexPair;
 export type AllSymbols = CryptoSymbol | ForexSymbol;
 export type Timeframe = BinanceTimeframe;
 
@@ -14,7 +14,7 @@ export interface UnifiedMarketDataConfig {
     cacheTTL?: number;
     rateLimit?: { maxRequests: number; perMinutes: number };
   };
-  finnhub?: {
+  alphaVantage?: {
     apiKey: string;
     baseUrl?: string;
     cacheTTL?: number;
@@ -24,19 +24,19 @@ export interface UnifiedMarketDataConfig {
 
 export class UnifiedMarketDataService {
   private binanceClient: BinanceDataClient;
-  private finnhubClient?: FinnhubDataClient;
+  private alphaVantageClient?: AlphaVantageDataClient;
   private cryptoSymbols: Set<string> = new Set(['BTCUSDT', 'ETHUSDT', 'XRPUSDT', 'SOLUSDT']);
   private forexSymbols: Set<string> = new Set(['USD/JPY', 'EUR/USD', 'GBP/USD']);
 
   constructor(config: UnifiedMarketDataConfig) {
     this.binanceClient = new BinanceDataClient(config.binance);
 
-    if (config.finnhub?.apiKey) {
-      this.finnhubClient = new FinnhubDataClient({
-        apiKey: config.finnhub.apiKey,
-        baseUrl: config.finnhub.baseUrl,
-        cacheTTL: config.finnhub.cacheTTL,
-        rateLimit: config.finnhub.rateLimit,
+    if (config.alphaVantage?.apiKey) {
+      this.alphaVantageClient = new AlphaVantageDataClient({
+        apiKey: config.alphaVantage.apiKey,
+        baseUrl: config.alphaVantage.baseUrl,
+        cacheTTL: config.alphaVantage.cacheTTL,
+        rateLimit: config.alphaVantage.rateLimit,
       });
     }
   }
@@ -47,13 +47,10 @@ export class UnifiedMarketDataService {
     if (assetType === 'crypto') {
       return this.binanceClient.getKlines(symbol as CryptoSymbol, timeframe, limit);
     } else {
-      if (!this.finnhubClient) {
-        throw new Error('Finnhub client not configured. Please provide FINNHUB_API_KEY.');
+      if (!this.alphaVantageClient) {
+        throw new Error('Alpha Vantage client not configured. Please provide ALPHA_VANTAGE_API_KEY.');
       }
-      const endTime = Date.now();
-      const timeframeMs = this.getTimeframeMs(timeframe);
-      const startTime = endTime - timeframeMs * limit;
-      return this.finnhubClient.getCandles(symbol as ForexSymbol, timeframe as FinnhubTimeframe, startTime, endTime);
+      return this.alphaVantageClient.getLatestCandles(symbol as ForexSymbol, timeframe as AlphaVantageTimeframe, limit);
     }
   }
 
@@ -71,7 +68,7 @@ export class UnifiedMarketDataService {
       ...Array.from(this.cryptoSymbols) as CryptoSymbol[],
     ];
 
-    if (this.finnhubClient) {
+    if (this.alphaVantageClient) {
       symbols.push(...Array.from(this.forexSymbols) as ForexSymbol[]);
     }
 
@@ -86,8 +83,8 @@ export class UnifiedMarketDataService {
     return Array.from(this.forexSymbols) as ForexSymbol[];
   }
 
-  isFinnhubEnabled(): boolean {
-    return this.finnhubClient !== undefined;
+  isAlphaVantageEnabled(): boolean {
+    return this.alphaVantageClient !== undefined;
   }
 
   close(): void {

@@ -8,20 +8,20 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('=== Unified Signal Generation Test ===\n');
 
-  const finnhubApiKey = process.env.FINNHUB_API_KEY;
+  const alphaVantageApiKey = process.env.ALPHA_VANTAGE_API_KEY;
   
-  if (!finnhubApiKey) {
-    console.warn('⚠️  FINNHUB_API_KEY not set. Forex signals will be skipped.');
-    console.warn('   To include forex signals, set FINNHUB_API_KEY in your .env file.\n');
+  if (!alphaVantageApiKey) {
+    console.warn('⚠️  ALPHA_VANTAGE_API_KEY not set. Forex signals will be skipped.');
+    console.warn('   To include forex signals, set ALPHA_VANTAGE_API_KEY in your .env file.\n');
   }
 
   const marketDataService = new UnifiedMarketDataService({
     binance: {
       rateLimit: { maxRequests: 1200, perMinutes: 1 },
     },
-    finnhub: finnhubApiKey ? {
-      apiKey: finnhubApiKey,
-      rateLimit: { maxRequests: 80, perMinutes: 1 },
+    alphaVantage: alphaVantageApiKey ? {
+      apiKey: alphaVantageApiKey,
+      rateLimit: { maxRequests: 5, perMinutes: 1 },
     } : undefined,
   });
 
@@ -37,7 +37,7 @@ async function main() {
 
   console.log('Configured Assets:');
   console.log('  Crypto:', marketDataService.getCryptoSymbols().join(', '));
-  if (marketDataService.isFinnhubEnabled()) {
+  if (marketDataService.isAlphaVantageEnabled()) {
     console.log('  Forex:', marketDataService.getForexSymbols().join(', '));
   }
   console.log('');
