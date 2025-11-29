@@ -20,6 +20,7 @@ export default function DashboardPage() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterOptions>({});
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [refreshInterval, setRefreshInterval] = useState(15);
@@ -33,6 +34,7 @@ export default function DashboardPage() {
   const fetchSignals = useCallback(async () => {
     try {
       setIsRefreshing(true);
+      setError(null);
       const params = new URLSearchParams();
 
       if (filters.status) params.append('status', filters.status);
@@ -41,12 +43,18 @@ export default function DashboardPage() {
       if (filters.signalType) params.append('signalType', filters.signalType);
 
       const response = await fetch(`/api/signals?${params.toString()}`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch signals: ${response.status} ${response.statusText}`);
+      }
+      
       const data: SignalsResponse = await response.json();
 
       setSignals(data.signals);
       setMetrics(data.metrics);
     } catch (error) {
       console.error('Failed to fetch signals:', error);
+      setError(error instanceof Error ? error.message : 'Failed to fetch signals');
     } finally {
       setIsRefreshing(false);
       setIsLoading(false);
@@ -162,6 +170,24 @@ export default function DashboardPage() {
           onFilterChange={setFilters}
           assets={uniqueAssets}
         />
+
+        {/* Error Display */}
+        {error && (
+          <div className="mt-8 rounded-lg border border-red-500/50 bg-red-500/10 p-4">
+            <div className="flex items-center gap-2">
+              <span className="text-red-500 font-semibold">Error:</span>
+              <span className="text-red-400">{error}</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fetchSignals()}
+                className="ml-auto"
+              >
+                Retry
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Signals Display */}
         <div className="mt-8">
