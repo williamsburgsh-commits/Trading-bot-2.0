@@ -6,14 +6,14 @@ An automated trading signal monitoring system that generates, stores, and alerts
 
 - **Technical Analysis Module**: Comprehensive TA library with RSI, MACD, Bollinger Bands, SMA/EMA (multi-period), ATR, and volume indicators
 - **Multi-Timeframe Support**: Aggregate indicators across multiple timeframes for comprehensive analysis
-- **Multi-Asset Support**: Monitor both cryptocurrency pairs (Binance) and forex pairs (Finnhub)
+- **Multi-Asset Support**: Monitor both cryptocurrency pairs (Binance) and forex pairs (Alpha Vantage)
   - Crypto: BTC, ETH, XRP, SOL (via Binance API)
-  - Forex: USD/JPY, EUR/USD, GBP/USD (via Finnhub API)
+  - Forex: USD/JPY, EUR/USD, GBP/USD (via Alpha Vantage API)
 - **Persistence Layer**: SQLite database via Prisma for storing signals with full metadata
 - **Signal Generation**: Technical analysis-based signal engine using multiple indicators
 - **Scheduled Monitoring**: Node-cron scheduler for periodic market scanning
 - **Alerting System**: Console logging with pluggable webhook/email support
-- **Rate Limiting**: Built-in rate limiting to respect API limits (Binance: 1200/min, Finnhub: 80/min)
+- **Rate Limiting**: Built-in rate limiting to respect API limits (Binance: 1200/min, Alpha Vantage: 5/min free tier)
 - **Duplicate Detection**: Idempotent storage checks to prevent duplicate alerts
 - **Error Handling**: Comprehensive error logging and recovery
 - **Test Coverage**: 75+ unit and integration tests with ~89% coverage
@@ -30,7 +30,7 @@ src/
 │   │   ├── cache.ts           # In-memory caching
 │   │   ├── validator.ts       # Response validation
 │   │   └── __tests__/         # Comprehensive test suite
-│   ├── finnhub-data-client/   # Finnhub forex data client
+│   ├── alphavantage-data-client/   # Alpha Vantage forex data client
 │   │   ├── types.ts           # Type definitions
 │   │   ├── rest-client.ts     # REST API client
 │   │   ├── cache.ts           # In-memory caching
@@ -94,11 +94,11 @@ Key configuration options:
 - `BINANCE_API_URL`: Binance API base URL (default: https://api.binance.com)
 - `RATE_LIMIT_MAX`: Binance API rate limit (default: 1200 req/min for public endpoints)
 
-**Finnhub (Forex):**
-- `FINNHUB_API_KEY`: **Required for forex signals** - Get free API key at https://finnhub.io/register
-- `FINNHUB_API_URL`: Finnhub API base URL (default: https://finnhub.io/api/v1)
-- `FINNHUB_RATE_LIMIT_MAX`: Finnhub rate limit (default: 80 calls/min for free tier)
-- `FINNHUB_RATE_LIMIT_MINUTES`: Rate limit window in minutes (default: 1)
+**Alpha Vantage (Forex):**
+- `ALPHA_VANTAGE_API_KEY`: **Required for forex signals** - Get free API key at https://www.alphavantage.co/support/#api-key
+- `ALPHA_VANTAGE_API_URL`: Alpha Vantage API base URL (default: https://www.alphavantage.co)
+- `ALPHA_VANTAGE_RATE_LIMIT_MAX`: Alpha Vantage rate limit (default: 5 calls/min for free tier)
+- `ALPHA_VANTAGE_RATE_LIMIT_MINUTES`: Rate limit window in minutes (default: 1)
 
 **General:**
 - `MONITOR_INTERVAL`: Cron expression for scan frequency (e.g., `*/5 * * * *` for every 5 minutes)
@@ -118,12 +118,12 @@ npm run test:unified-signals
 ```
 
 This will:
-1. Fetch market data from Binance (crypto) and Finnhub (forex)
+1. Fetch market data from Binance (crypto) and Alpha Vantage (forex)
 2. Generate signals for all supported assets (BTC, ETH, XRP, SOL, USD/JPY, EUR/USD, GBP/USD)
 3. Store signals in the database with asset type classification
 4. Display summary of generated signals
 
-Note: Requires `FINNHUB_API_KEY` to be set for forex signals.
+Note: Requires `ALPHA_VANTAGE_API_KEY` to be set for forex signals.
 
 ### Run One-Time Scan (Legacy)
 

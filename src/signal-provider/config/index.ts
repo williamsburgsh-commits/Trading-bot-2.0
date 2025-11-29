@@ -6,7 +6,7 @@ export interface BinanceConfig {
   baseUrl: string;
 }
 
-export interface FinnhubConfig {
+export interface AlphaVantageConfig {
   apiKey?: string;
   baseUrl: string;
   rateLimit: {
@@ -31,7 +31,7 @@ export interface RateLimitConfig {
 
 export interface ServiceConfig {
   binance: BinanceConfig;
-  finnhub: FinnhubConfig;
+  alphaVantage: AlphaVantageConfig;
   database: DatabaseConfig;
   logging: LoggingConfig;
   rateLimit: RateLimitConfig;
@@ -53,16 +53,16 @@ function validateConfig(config: ServiceConfig): void {
     throw new ConfigurationError('BINANCE_API_URL must be a valid HTTP(S) URL');
   }
 
-  if (!config.finnhub.baseUrl.startsWith('http')) {
-    throw new ConfigurationError('FINNHUB_API_URL must be a valid HTTP(S) URL');
+  if (!config.alphaVantage.baseUrl.startsWith('http')) {
+    throw new ConfigurationError('ALPHA_VANTAGE_API_URL must be a valid HTTP(S) URL');
   }
 
-  if (config.finnhub.rateLimit.maxRequests <= 0) {
-    throw new ConfigurationError('FINNHUB_RATE_LIMIT_MAX must be a positive number');
+  if (config.alphaVantage.rateLimit.maxRequests <= 0) {
+    throw new ConfigurationError('ALPHA_VANTAGE_RATE_LIMIT_MAX must be a positive number');
   }
 
-  if (config.finnhub.rateLimit.perMinutes <= 0) {
-    throw new ConfigurationError('FINNHUB_RATE_LIMIT_MINUTES must be a positive number');
+  if (config.alphaVantage.rateLimit.perMinutes <= 0) {
+    throw new ConfigurationError('ALPHA_VANTAGE_RATE_LIMIT_MINUTES must be a positive number');
   }
 
   if (config.rateLimit.maxRequests <= 0) {
@@ -87,7 +87,7 @@ function validateConfig(config: ServiceConfig): void {
 export function loadConfig(): ServiceConfig {
   const apiKey = getOptionalEnv('BINANCE_API_KEY', '');
   const apiSecret = getOptionalEnv('BINANCE_API_SECRET', '');
-  const finnhubApiKey = getOptionalEnv('FINNHUB_API_KEY', '');
+  const alphaVantageApiKey = getOptionalEnv('ALPHA_VANTAGE_API_KEY', '');
 
   const config: ServiceConfig = {
     binance: {
@@ -95,12 +95,12 @@ export function loadConfig(): ServiceConfig {
       apiSecret: apiSecret || undefined,
       baseUrl: getOptionalEnv('BINANCE_API_URL', 'https://api.binance.com'),
     },
-    finnhub: {
-      apiKey: finnhubApiKey || undefined,
-      baseUrl: getOptionalEnv('FINNHUB_API_URL', 'https://finnhub.io/api/v1'),
+    alphaVantage: {
+      apiKey: alphaVantageApiKey || undefined,
+      baseUrl: getOptionalEnv('ALPHA_VANTAGE_API_URL', 'https://www.alphavantage.co'),
       rateLimit: {
-        maxRequests: parseInt(getOptionalEnv('FINNHUB_RATE_LIMIT_MAX', '80')),
-        perMinutes: parseInt(getOptionalEnv('FINNHUB_RATE_LIMIT_MINUTES', '1')),
+        maxRequests: parseInt(getOptionalEnv('ALPHA_VANTAGE_RATE_LIMIT_MAX', '5')),
+        perMinutes: parseInt(getOptionalEnv('ALPHA_VANTAGE_RATE_LIMIT_MINUTES', '1')),
       },
     },
     database: {
