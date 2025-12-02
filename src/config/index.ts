@@ -10,6 +10,26 @@ export const config = {
 
   binance: {
     baseUrl: process.env.BINANCE_API_URL || 'https://api.binance.com',
+    cacheTTL: parseInt(process.env.BINANCE_CACHE_TTL || '60000'),
+    rateLimit: {
+      maxRequests: parseInt(process.env.BINANCE_RATE_LIMIT_MAX || '1200'),
+      perMinutes: parseInt(process.env.BINANCE_RATE_LIMIT_MINUTES || '1'),
+    },
+  },
+
+  twelvedata: {
+    apiKey: process.env.TWELVEDATA_API_KEY || '',
+    baseUrl: process.env.TWELVEDATA_API_URL || 'https://api.twelvedata.com',
+    cacheTTL: parseInt(process.env.TWELVEDATA_CACHE_TTL || '300000'),
+    rateLimit: {
+      maxRequests: parseInt(process.env.TWELVEDATA_RATE_LIMIT_MAX || '8'),
+      perMinutes: parseInt(process.env.TWELVEDATA_RATE_LIMIT_MINUTES || '1'),
+    },
+  },
+
+  marketData: {
+    enableMockFallback: process.env.MARKET_DATA_MOCK_FALLBACK !== 'false',
+    pollingInterval: parseInt(process.env.MARKET_DATA_POLLING_INTERVAL || '60000'),
   },
 
   monitor: {
