@@ -1,7 +1,7 @@
 import { KlineData } from '../../types';
 
 export type BinanceSymbol = 'BTCUSDT' | 'ETHUSDT' | 'XRPUSDT' | 'SOLUSDT';
-export type BinanceTimeframe = '5m' | '15m' | '1h' | '4h';
+export type BinanceTimeframe = '5m' | '15m' | '30m' | '1h' | '4h' | '1d';
 
 export interface BinanceKlineResponse {
   openTime: number;

@@ -13,9 +13,5 @@ export interface IStorageService {
   disconnect(): Promise<void>;
 }
 
-export type {
-  StoredSignal,
-  StoredUserSettings,
-  SignalFilters,
-} from './adapter';
+export type { StoredSignal, StoredUserSettings, SignalFilters } from './adapter';
 export { StorageAdapter } from './adapter';

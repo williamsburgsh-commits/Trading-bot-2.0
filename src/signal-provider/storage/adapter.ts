@@ -81,7 +81,7 @@ export class StorageAdapter {
     if (this.useKV && this.kvAdapter) {
       const key = `signal:${signal.id}`;
       await this.kvAdapter.set(key, signal);
-      
+
       const indexKey = `signals:index`;
       const existingIds = (await this.kvAdapter.get<string[]>(indexKey)) || [];
       if (!existingIds.includes(signal.id)) {
@@ -91,13 +91,13 @@ export class StorageAdapter {
     } else {
       const signals = await this.loadSignalsFromFile();
       const existingIndex = signals.findIndex((s) => s.id === signal.id);
-      
+
       if (existingIndex >= 0) {
         signals[existingIndex] = signal;
       } else {
         signals.push(signal);
       }
-      
+
       await this.saveSignalsToFile(signals);
     }
   }
@@ -181,7 +181,7 @@ export class StorageAdapter {
     try {
       const indexKey = 'signals:index';
       const signalIds = (await this.kvAdapter.get<string[]>(indexKey)) || [];
-      
+
       const signals: StoredSignal[] = [];
       for (const id of signalIds) {
         const signal = await this.kvAdapter.get<StoredSignal>(`signal:${id}`);
@@ -189,9 +189,9 @@ export class StorageAdapter {
           signals.push(signal);
         }
       }
-      
-      return signals.sort((a, b) => 
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+
+      return signals.sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
     } catch (error) {
       console.error('Error loading signals from KV:', error);
@@ -254,11 +254,11 @@ export class StorageAdapter {
       if (filters.category) {
         const isDaily = ['1d', '4h'].includes(signal.timeframe);
         const isScalping = ['5m', '15m', '30m', '1h'].includes(signal.timeframe);
-        
+
         if (filters.category === 'daily' && !isDaily) {
           return false;
         }
-        
+
         if (filters.category === 'scalping' && !isScalping) {
           return false;
         }

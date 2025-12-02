@@ -32,7 +32,7 @@ const bulkSignalsSchema = z.object({
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    
+
     const queryParams = signalQuerySchema.safeParse({
       type: searchParams.get('type'),
       status: searchParams.get('status'),
@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization');
     const cronSecret = process.env.CRON_SECRET || 'dev-secret';
-    
+
     const body = await request.json();
     const validation = bulkSignalsSchema.safeParse(body);
 
@@ -180,10 +180,7 @@ export async function POST(request: NextRequest) {
     const { signals, token } = validation.data;
 
     if (authHeader !== `Bearer ${cronSecret}` && token !== cronSecret) {
-      return Response.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const created = [];

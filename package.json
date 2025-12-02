@@ -14,6 +14,7 @@
     "monitor": "ts-node src/monitor.ts",
     "test:signals": "ts-node src/test-signals.ts",
     "test:unified-signals": "ts-node src/test-unified-signals.ts",
+    "test:strategy-engine": "ts-node src/test-strategy-engine.ts",
     "lint": "eslint 'src/**/*.ts' 'app/**/*.{ts,tsx}' 'components/**/*.{ts,tsx}' 'lib/**/*.ts'",
     "lint:fix": "eslint 'src/**/*.ts' 'app/**/*.{ts,tsx}' 'components/**/*.{ts,tsx}' 'lib/**/*.ts' --fix",
     "format": "prettier --write 'src/**/*.ts' 'app/**/*.{ts,tsx}' 'components/**/*.{ts,tsx}' 'lib/**/*.ts'",
