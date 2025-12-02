@@ -2,7 +2,9 @@
 
 import { Signal } from '@/lib/types';
 import { cn, formatCurrency, formatTimeAgo } from '@/lib/utils';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { TrendingUp, TrendingDown, Info } from 'lucide-react';
+import { ConfidenceStars } from './confidence-stars';
+import { Tooltip } from './ui/tooltip';
 
 interface SignalsTableProps {
   signals: Signal[];
@@ -37,64 +39,42 @@ export function SignalsTable({ signals, isLoading }: SignalsTableProps) {
             <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
               Signal Type
             </th>
-            <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-              Timeframe
-            </th>
             <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
               Entry
             </th>
             <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
-              Stop Loss
+              TP
             </th>
             <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
-              TP1 (40%)
-            </th>
-            <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
-              TP2 (35%)
-            </th>
-            <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
-              TP3 (25%)
+              SL
             </th>
             <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-              Status
+              Timeframe
             </th>
             <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-              Created
+              Generated At
+            </th>
+            <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+              Confidence
             </th>
           </tr>
         </thead>
         <tbody>
           {signals.map((signal) => {
             const isBuy = signal.signalType === 'BUY';
-            const range = signal.takeProfit - signal.stopLoss;
-            const thirdRange = range / 3;
-
-            let tp1, tp2, tp3;
-            if (isBuy) {
-              tp1 = signal.entryPrice + thirdRange * 0.4;
-              tp2 = signal.entryPrice + thirdRange * 0.75;
-              tp3 = signal.takeProfit;
-            } else {
-              tp1 = signal.entryPrice - thirdRange * 0.4;
-              tp2 = signal.entryPrice - thirdRange * 0.75;
-              tp3 = signal.takeProfit;
-            }
-
-            const statusColor = {
-              active: 'bg-blue-500/10 text-blue-500',
-              filled: 'bg-yellow-500/10 text-yellow-500',
-              closed: 'bg-gray-500/10 text-gray-500',
-            };
 
             const signalColor = isBuy
               ? 'text-green-500 bg-green-500/10'
               : 'text-red-500 bg-red-500/10';
 
+            const confidence = signal.confidence || 75;
+            const backtestInfo = signal.metadata?.backtestWinRate
+              ? `Backtest: ${signal.metadata.backtestWinRate.toFixed(1)}% win rate over ${signal.metadata.backtestTrades || 0} trades`
+              : 'Confidence based on technical indicators';
+
             return (
               <tr key={signal.id} className="border-b border-border hover:bg-muted/50">
-                <td className="h-12 px-4 align-middle font-medium">
-                  {signal.asset}
-                </td>
+                <td className="h-12 px-4 align-middle font-medium">{signal.asset}</td>
                 <td className="h-12 px-4 align-middle">
                   <div
                     className={cn(
@@ -110,35 +90,26 @@ export function SignalsTable({ signals, isLoading }: SignalsTableProps) {
                     {signal.signalType}
                   </div>
                 </td>
-                <td className="h-12 px-4 align-middle">{signal.timeframe}</td>
                 <td className="h-12 px-4 align-middle text-right font-medium">
                   {formatCurrency(signal.entryPrice)}
+                </td>
+                <td className="h-12 px-4 align-middle text-right text-green-500">
+                  {formatCurrency(signal.takeProfit)}
                 </td>
                 <td className="h-12 px-4 align-middle text-right text-red-500">
                   {formatCurrency(signal.stopLoss)}
                 </td>
-                <td className="h-12 px-4 align-middle text-right text-green-500">
-                  {formatCurrency(tp1)}
-                </td>
-                <td className="h-12 px-4 align-middle text-right text-green-500">
-                  {formatCurrency(tp2)}
-                </td>
-                <td className="h-12 px-4 align-middle text-right text-green-500">
-                  {formatCurrency(tp3)}
-                </td>
-                <td className="h-12 px-4 align-middle">
-                  <span
-                    className={cn(
-                      'inline-block rounded px-2 py-1 text-xs font-medium',
-                      statusColor[signal.status as keyof typeof statusColor] ||
-                        statusColor.active
-                    )}
-                  >
-                    {signal.status}
-                  </span>
-                </td>
+                <td className="h-12 px-4 align-middle">{signal.timeframe}</td>
                 <td className="h-12 px-4 align-middle text-muted-foreground text-xs">
                   {formatTimeAgo(signal.createdAt)}
+                </td>
+                <td className="h-12 px-4 align-middle">
+                  <div className="flex items-center gap-2">
+                    <ConfidenceStars confidence={confidence} />
+                    <Tooltip content={backtestInfo}>
+                      <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                    </Tooltip>
+                  </div>
                 </td>
               </tr>
             );

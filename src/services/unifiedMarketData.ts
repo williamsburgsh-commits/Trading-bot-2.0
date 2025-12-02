@@ -1,6 +1,10 @@
 import { KlineData } from '../types';
 import { BinanceDataClient, BinanceSymbol, BinanceTimeframe } from '../modules/binance-data-client';
-import { AlphaVantageDataClient, AlphaVantageForexPair, AlphaVantageTimeframe } from '../modules/alphavantage-data-client';
+import {
+  AlphaVantageDataClient,
+  AlphaVantageForexPair,
+  AlphaVantageTimeframe,
+} from '../modules/alphavantage-data-client';
 
 export type AssetType = 'crypto' | 'forex';
 export type CryptoSymbol = BinanceSymbol;
@@ -41,16 +45,26 @@ export class UnifiedMarketDataService {
     }
   }
 
-  async getKlines(symbol: AllSymbols, timeframe: Timeframe, limit: number = 500): Promise<KlineData[]> {
+  async getKlines(
+    symbol: AllSymbols,
+    timeframe: Timeframe,
+    limit: number = 500
+  ): Promise<KlineData[]> {
     const assetType = this.getAssetType(symbol);
 
     if (assetType === 'crypto') {
       return this.binanceClient.getKlines(symbol as CryptoSymbol, timeframe, limit);
     } else {
       if (!this.alphaVantageClient) {
-        throw new Error('Alpha Vantage client not configured. Please provide ALPHA_VANTAGE_API_KEY.');
+        throw new Error(
+          'Alpha Vantage client not configured. Please provide ALPHA_VANTAGE_API_KEY.'
+        );
       }
-      return this.alphaVantageClient.getLatestCandles(symbol as ForexSymbol, timeframe as AlphaVantageTimeframe, limit);
+      return this.alphaVantageClient.getLatestCandles(
+        symbol as ForexSymbol,
+        timeframe as AlphaVantageTimeframe,
+        limit
+      );
     }
   }
 
@@ -64,12 +78,10 @@ export class UnifiedMarketDataService {
   }
 
   getAllSymbols(): AllSymbols[] {
-    const symbols: AllSymbols[] = [
-      ...Array.from(this.cryptoSymbols) as CryptoSymbol[],
-    ];
+    const symbols: AllSymbols[] = [...(Array.from(this.cryptoSymbols) as CryptoSymbol[])];
 
     if (this.alphaVantageClient) {
-      symbols.push(...Array.from(this.forexSymbols) as ForexSymbol[]);
+      symbols.push(...(Array.from(this.forexSymbols) as ForexSymbol[]));
     }
 
     return symbols;

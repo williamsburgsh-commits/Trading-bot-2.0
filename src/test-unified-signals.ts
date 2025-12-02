@@ -10,7 +10,7 @@ async function main() {
   console.log('=== Unified Signal Generation Test ===\n');
 
   const alphaVantageApiKey = process.env.ALPHA_VANTAGE_API_KEY;
-  
+
   if (!alphaVantageApiKey) {
     console.warn('⚠️  ALPHA_VANTAGE_API_KEY not set. Forex signals will be skipped.');
     console.warn('   To include forex signals, set ALPHA_VANTAGE_API_KEY in your .env file.\n');
@@ -20,10 +20,12 @@ async function main() {
     binance: {
       rateLimit: { maxRequests: 1200, perMinutes: 1 },
     },
-    alphaVantage: alphaVantageApiKey ? {
-      apiKey: alphaVantageApiKey,
-      rateLimit: { maxRequests: 5, perMinutes: 1 },
-    } : undefined,
+    alphaVantage: alphaVantageApiKey
+      ? {
+          apiKey: alphaVantageApiKey,
+          rateLimit: { maxRequests: 5, perMinutes: 1 },
+        }
+      : undefined,
   });
 
   const signalEngine = new UnifiedSignalEngine(marketDataService, {
@@ -44,7 +46,7 @@ async function main() {
   console.log('');
 
   const timeframes: ('5m' | '15m' | '1h' | '4h')[] = ['15m', '1h', '4h'];
-  
+
   console.log(`Generating signals for timeframes: ${timeframes.join(', ')}\n`);
 
   const allSignals = await signalEngine.generateAllSignals(timeframes);
@@ -53,19 +55,23 @@ async function main() {
 
   try {
     await db.connect();
-    
+
     if (allSignals.length > 0) {
       console.log('Storing signals in database (with notifications)...');
-      
+
       for (const signal of allSignals) {
         await db.saveSignal(signal);
-        
+
         const metadata = signal.metadata ? JSON.parse(signal.metadata) : {};
-        console.log(`  [${metadata.assetType?.toUpperCase() || 'CRYPTO'}] ${signal.signalType} ${signal.asset} @ ${signal.entryPrice.toFixed(5)}`);
+        console.log(
+          `  [${metadata.assetType?.toUpperCase() || 'CRYPTO'}] ${signal.signalType} ${signal.asset} @ ${signal.entryPrice.toFixed(5)}`
+        );
         console.log(`    TP: ${signal.takeProfit.toFixed(5)} | SL: ${signal.stopLoss.toFixed(5)}`);
-        console.log(`    RSI: ${metadata.rsi?.toFixed(2)} | Volume Ratio: ${metadata.volumeRatio?.toFixed(2)}\n`);
+        console.log(
+          `    RSI: ${metadata.rsi?.toFixed(2)} | Volume Ratio: ${metadata.volumeRatio?.toFixed(2)}\n`
+        );
       }
-      
+
       console.log('✅ All signals stored successfully');
     } else {
       console.log('ℹ️  No signals generated. Market conditions may not meet criteria.');
@@ -84,8 +90,10 @@ async function main() {
       const meta = s.metadata ? JSON.parse(s.metadata) : {};
       return meta.assetType === 'forex';
     }).length;
-    
-    console.log(`  Total: ${allStoredSignals.length} | Crypto: ${cryptoCount} | Forex: ${forexCount}\n`);
+
+    console.log(
+      `  Total: ${allStoredSignals.length} | Crypto: ${cryptoCount} | Forex: ${forexCount}\n`
+    );
 
     marketDataService.close();
     await db.disconnect();
@@ -96,8 +104,7 @@ async function main() {
   }
 }
 
-main()
-  .catch((error) => {
-    console.error('Error:', error);
-    process.exit(1);
-  });
+main().catch((error) => {
+  console.error('Error:', error);
+  process.exit(1);
+});

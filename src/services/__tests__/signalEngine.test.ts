@@ -113,9 +113,7 @@ describe('SignalEngine', () => {
     });
 
     it('should handle API errors gracefully', async () => {
-      mockMarketDataService.getKlines = jest
-        .fn()
-        .mockRejectedValue(new Error('API Error'));
+      mockMarketDataService.getKlines = jest.fn().mockRejectedValue(new Error('API Error'));
 
       const signals = await signalEngine.generateSignals('BTCUSDT', '1h');
 

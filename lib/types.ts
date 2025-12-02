@@ -7,6 +7,8 @@ export interface Signal {
   stopLoss: number;
   status: 'active' | 'filled' | 'closed';
   signalType: 'BUY' | 'SELL';
+  category?: 'daily' | 'scalping';
+  confidence?: number;
   metadata: {
     assetType: 'crypto' | 'forex';
     rsi?: number;
@@ -18,6 +20,9 @@ export interface Signal {
     volumeRatio?: number;
     volatility?: number;
     exitPrice?: number;
+    confidence?: number;
+    backtestWinRate?: number;
+    backtestTrades?: number;
   } | null;
   createdAt: string;
   updatedAt: string;
@@ -40,4 +45,22 @@ export interface FilterOptions {
   asset?: string;
   assetType?: 'crypto' | 'forex';
   signalType?: 'BUY' | 'SELL';
+}
+
+export interface UserSettings {
+  enabledAssets: string[];
+  notificationChannels: {
+    email: boolean;
+    push: boolean;
+    webhook: boolean;
+  };
+  preferredTimeframes: string[];
+  riskLevel: number;
+}
+
+export interface Asset {
+  symbol: string;
+  name: string;
+  type: 'crypto' | 'forex';
+  enabled: boolean;
 }

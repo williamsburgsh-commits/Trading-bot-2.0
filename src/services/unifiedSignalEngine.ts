@@ -74,11 +74,18 @@ export class UnifiedSignalEngine {
         signals.push(signal);
         console.log(`BUY signal generated for ${asset}`);
       } else if (this.isSellSignal(rsi, macd, volumeRatio)) {
-        const signal = this.createSellSignal(asset, timeframe, currentPrice, volatility, assetType, {
-          rsi,
-          macd: macd!,
-          volumeRatio,
-        });
+        const signal = this.createSellSignal(
+          asset,
+          timeframe,
+          currentPrice,
+          volatility,
+          assetType,
+          {
+            rsi,
+            macd: macd!,
+            volumeRatio,
+          }
+        );
         signals.push(signal);
         console.log(`SELL signal generated for ${asset}`);
       } else {

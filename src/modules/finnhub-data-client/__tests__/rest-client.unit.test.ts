@@ -69,13 +69,16 @@ describe('FinnhubRestClient', () => {
       expect(result.length).toBeGreaterThan(0);
       expect(result[0]).toHaveProperty('openTime');
       expect(result[0]).toHaveProperty('close');
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/forex/candle', expect.objectContaining({
-        params: expect.objectContaining({
-          symbol: 'OANDA:EUR_USD',
-          resolution: '60',
-          token: 'test-api-key',
-        }),
-      }));
+      expect(mockAxiosInstance.get).toHaveBeenCalledWith(
+        '/forex/candle',
+        expect.objectContaining({
+          params: expect.objectContaining({
+            symbol: 'OANDA:EUR_USD',
+            resolution: '60',
+            token: 'test-api-key',
+          }),
+        })
+      );
     });
 
     it('should use cached data on subsequent requests', async () => {
@@ -121,18 +124,24 @@ describe('FinnhubRestClient', () => {
       const endTime = Date.now();
 
       await client.getCandles('USD/JPY', '1h', startTime, endTime);
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/forex/candle', expect.objectContaining({
-        params: expect.objectContaining({
-          symbol: 'OANDA:USD_JPY',
-        }),
-      }));
+      expect(mockAxiosInstance.get).toHaveBeenCalledWith(
+        '/forex/candle',
+        expect.objectContaining({
+          params: expect.objectContaining({
+            symbol: 'OANDA:USD_JPY',
+          }),
+        })
+      );
 
       await client.getCandles('GBP/USD', '1h', startTime, endTime);
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/forex/candle', expect.objectContaining({
-        params: expect.objectContaining({
-          symbol: 'OANDA:GBP_USD',
-        }),
-      }));
+      expect(mockAxiosInstance.get).toHaveBeenCalledWith(
+        '/forex/candle',
+        expect.objectContaining({
+          params: expect.objectContaining({
+            symbol: 'OANDA:GBP_USD',
+          }),
+        })
+      );
     });
 
     it('should handle different timeframes', async () => {
@@ -144,25 +153,34 @@ describe('FinnhubRestClient', () => {
       const endTime = Date.now();
 
       await client.getCandles('EUR/USD', '5m', startTime, endTime);
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/forex/candle', expect.objectContaining({
-        params: expect.objectContaining({ resolution: '5' }),
-      }));
+      expect(mockAxiosInstance.get).toHaveBeenCalledWith(
+        '/forex/candle',
+        expect.objectContaining({
+          params: expect.objectContaining({ resolution: '5' }),
+        })
+      );
 
       jest.clearAllMocks();
       mockAxiosInstance.get = jest.fn().mockResolvedValue({ data: mockData });
 
       await client.getCandles('EUR/USD', '15m', startTime, endTime);
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/forex/candle', expect.objectContaining({
-        params: expect.objectContaining({ resolution: '15' }),
-      }));
+      expect(mockAxiosInstance.get).toHaveBeenCalledWith(
+        '/forex/candle',
+        expect.objectContaining({
+          params: expect.objectContaining({ resolution: '15' }),
+        })
+      );
 
       jest.clearAllMocks();
       mockAxiosInstance.get = jest.fn().mockResolvedValue({ data: mockData });
 
       await client.getCandles('EUR/USD', '4h', startTime, endTime);
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/forex/candle', expect.objectContaining({
-        params: expect.objectContaining({ resolution: '240' }),
-      }));
+      expect(mockAxiosInstance.get).toHaveBeenCalledWith(
+        '/forex/candle',
+        expect.objectContaining({
+          params: expect.objectContaining({ resolution: '240' }),
+        })
+      );
     });
   });
 

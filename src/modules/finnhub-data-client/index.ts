@@ -18,7 +18,11 @@ export class FinnhubDataClient {
     return this.restClient.getCandles(symbol, timeframe, startTime, endTime);
   }
 
-  async getLatestCandles(symbol: FinnhubForexPair, timeframe: FinnhubTimeframe, limit: number = 500) {
+  async getLatestCandles(
+    symbol: FinnhubForexPair,
+    timeframe: FinnhubTimeframe,
+    limit: number = 500
+  ) {
     return this.restClient.getLatestCandles(symbol, timeframe, limit);
   }
 
