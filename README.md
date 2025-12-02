@@ -484,6 +484,305 @@ This trading signal system is provided **for educational and informational purpo
 
 **By using this software, you acknowledge that you understand and accept these risks.**
 
+## Persistence & Storage
+
+The system supports two storage backends with automatic fallback:
+
+### Vercel KV (Production)
+- **Primary storage**: Uses Vercel KV for production deployments
+- **High performance**: Redis-based key-value store
+- **Configuration**: Set KV environment variables in Vercel dashboard
+- **Automatic detection**: Falls back to JSON if KV is unavailable
+
+### JSON File (Development)
+- **Fallback storage**: Local file system for development
+- **Location**: `./data/signals.json` and `./data/settings.json`
+- **Auto-created**: Data directory created automatically on first run
+- **Git ignored**: Data files excluded from version control
+
+### Storage Adapter
+
+The `StorageAdapter` class (`src/signal-provider/storage/adapter.ts`) provides:
+- **Signal persistence**: Save and query trading signals
+- **User settings**: Store per-user preferences and configurations
+- **Filtering**: Query signals by asset, timeframe, status, category
+- **Pagination**: Limit and offset support for large datasets
+
+## API Routes
+
+### Signals API (`/api/signals`)
+
+**GET** - Fetch signals with filtering:
+```bash
+# Get all signals
+curl http://localhost:3000/api/signals
+
+# Filter by category
+curl http://localhost:3000/api/signals?type=daily
+curl http://localhost:3000/api/signals?type=scalping
+
+# Filter by asset and status
+curl http://localhost:3000/api/signals?asset=BTCUSDT&status=active
+
+# Pagination
+curl http://localhost:3000/api/signals?limit=20&offset=0
+```
+
+**POST** - Create signals (cron/internal use):
+```bash
+curl -X POST http://localhost:3000/api/signals \
+  -H "Authorization: Bearer your-cron-secret" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "signals": [{
+      "asset": "BTCUSDT",
+      "timeframe": "1h",
+      "entryPrice": 45000,
+      "takeProfit": 46000,
+      "stopLoss": 44500,
+      "signalType": "BUY"
+    }]
+  }'
+```
+
+### Settings API (`/api/settings`)
+
+**GET** - Fetch user settings:
+```bash
+curl http://localhost:3000/api/settings
+```
+
+**POST** - Update settings (requires authentication):
+```bash
+curl -X POST http://localhost:3000/api/settings \
+  -H "Content-Type: application/json" \
+  -H "Cookie: next-auth.session-token=..." \
+  -d '{
+    "settings": {
+      "enabledAssets": ["BTCUSDT", "ETHUSDT"],
+      "notificationChannels": {"email": true, "push": true, "webhook": false},
+      "preferredTimeframes": ["4h", "1d"],
+      "riskLevel": 50
+    }
+  }'
+```
+
+### Cron Endpoints
+
+**Daily Signals** (`/api/cron/daily`):
+- **Schedule**: 00:00 UTC daily (configured in `vercel.json`)
+- **Timeframes**: 4h, 1d
+- **Assets**: All crypto and forex pairs
+- **Authentication**: Requires `CRON_SECRET` in Authorization header
+
+```bash
+curl -X GET http://localhost:3000/api/cron/daily \
+  -H "Authorization: Bearer your-cron-secret"
+```
+
+**Scalping Signals** (`/api/cron/scalping`):
+- **Schedule**: Every 5 minutes (configured in `vercel.json`)
+- **Timeframes**: 5m, 15m, 30m, 1h
+- **Assets**: Crypto only (faster execution)
+- **Authentication**: Requires `CRON_SECRET` in Authorization header
+
+```bash
+curl -X GET http://localhost:3000/api/cron/scalping \
+  -H "Authorization: Bearer your-cron-secret"
+```
+
+## Authentication
+
+The system uses NextAuth.js for user authentication:
+
+### Configuration
+
+```bash
+# .env
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
+```
+
+### Demo Credentials
+
+For development, use these credentials:
+- **Email**: admin@example.com
+- **Password**: admin123
+
+### Protected Routes
+
+- **Settings page**: Requires authentication to save preferences
+- **Dashboard**: Readable without login (anonymous mode)
+- **Cron endpoints**: Protected by `CRON_SECRET` token
+
+### API Sessions
+
+Use `getServerSession(authOptions)` in API routes to check authentication:
+
+```typescript
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
+
+const session = await getServerSession(authOptions);
+if (!session) {
+  return Response.json({ error: 'Unauthorized' }, { status: 401 });
+}
+```
+
+## Cron Jobs (Vercel)
+
+The system uses Vercel Cron Jobs for automated signal generation:
+
+### Configuration
+
+Cron schedules are defined in `vercel.json`:
+
+```json
+{
+  "crons": [
+    {
+      "path": "/api/cron/daily",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/scalping",
+      "schedule": "*/5 * * * *"
+    }
+  ]
+}
+```
+
+### Schedule Format
+
+Uses standard cron syntax:
+- `0 0 * * *` - Daily at 00:00 UTC
+- `*/5 * * * *` - Every 5 minutes
+- `0 */4 * * *` - Every 4 hours
+- `0 9,17 * * *` - At 9 AM and 5 PM UTC
+
+### Local Testing
+
+Test cron endpoints locally:
+
+```bash
+# Set environment variable
+export CRON_SECRET="dev-secret"
+
+# Test daily endpoint
+curl http://localhost:3000/api/cron/daily \
+  -H "Authorization: Bearer dev-secret"
+
+# Test scalping endpoint
+curl http://localhost:3000/api/cron/scalping \
+  -H "Authorization: Bearer dev-secret"
+```
+
+### Monitoring
+
+Cron job responses include execution stats:
+
+```json
+{
+  "success": true,
+  "stats": {
+    "timestamp": "2024-01-01T00:00:00.000Z",
+    "type": "daily",
+    "assets": 7,
+    "timeframes": 2,
+    "signalsGenerated": 15,
+    "errors": 0
+  },
+  "signalIds": ["uuid1", "uuid2", "..."]
+}
+```
+
+## Environment Variables
+
+### Required Variables
+
+```bash
+# Database
+DATABASE_URL="file:./dev.db"
+
+# NextAuth
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="your-secret-here"
+
+# Cron Security
+CRON_SECRET="your-cron-secret-here"
+```
+
+### Optional Variables
+
+```bash
+# Alpha Vantage (for forex signals)
+ALPHA_VANTAGE_API_KEY="your-api-key"
+
+# Vercel KV (for production storage)
+KV_REST_API_URL="your-kv-url"
+KV_REST_API_TOKEN="your-kv-token"
+
+# Binance (optional - only for private endpoints)
+BINANCE_API_KEY="your-api-key"
+BINANCE_API_SECRET="your-api-secret"
+```
+
+### Generating Secrets
+
+```bash
+# NextAuth secret
+openssl rand -base64 32
+
+# Cron secret
+openssl rand -base64 32
+```
+
+## Deployment
+
+### Vercel Deployment
+
+1. **Push to GitHub**:
+```bash
+git add .
+git commit -m "Add persistence and cron jobs"
+git push origin main
+```
+
+2. **Configure Environment Variables** in Vercel Dashboard:
+   - `DATABASE_URL` - Your production database (Vercel Postgres recommended)
+   - `NEXTAUTH_URL` - Your production URL (e.g., https://your-app.vercel.app)
+   - `NEXTAUTH_SECRET` - Generated secret
+   - `CRON_SECRET` - Generated secret
+   - `ALPHA_VANTAGE_API_KEY` - Your API key
+   - `KV_REST_API_URL` - Vercel KV URL (optional)
+   - `KV_REST_API_TOKEN` - Vercel KV token (optional)
+
+3. **Enable Cron Jobs** in Vercel Dashboard:
+   - Navigate to Project Settings → Cron Jobs
+   - Verify both cron jobs are detected from `vercel.json`
+   - Enable each cron job
+
+4. **Deploy**:
+```bash
+vercel --prod
+```
+
+### Database Setup (Production)
+
+For production, use Vercel Postgres or another PostgreSQL database:
+
+```bash
+# Update schema for PostgreSQL
+# Change datasource in schema.prisma:
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+# Run migrations
+npx prisma migrate deploy
+```
+
 ## Customization
 
 ### Adding New Indicators
@@ -500,6 +799,22 @@ Modify `isBuySignal()` and `isSellSignal()` in `SignalEngine` to implement custo
 ### Additional Alert Channels
 
 Extend `AlertingService` to add new notification methods (Telegram, Discord, SMS, etc.).
+
+### Custom Storage Backend
+
+Implement the `KVAdapter` interface to add new storage backends:
+
+```typescript
+import { KVAdapter } from '@/lib/kv';
+
+class CustomStorage implements KVAdapter {
+  async get<T>(key: string): Promise<T | null> { /* ... */ }
+  async set(key: string, value: unknown): Promise<void> { /* ... */ }
+  async delete(key: string): Promise<void> { /* ... */ }
+  async keys(pattern: string): Promise<string[]> { /* ... */ }
+  async exists(key: string): Promise<boolean> { /* ... */ }
+}
+```
 
 ## License
 

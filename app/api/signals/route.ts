@@ -3,15 +3,54 @@ export const revalidate = 0;
 
 import { prisma } from '@/lib/prisma';
 import { NextRequest } from 'next/server';
+import { z } from 'zod';
+
+const signalQuerySchema = z.object({
+  type: z.enum(['daily', 'scalping']).optional(),
+  status: z.string().optional(),
+  asset: z.string().optional(),
+  limit: z.string().optional(),
+  offset: z.string().optional(),
+});
+
+const createSignalSchema = z.object({
+  asset: z.string(),
+  timeframe: z.string(),
+  entryPrice: z.number(),
+  takeProfit: z.number(),
+  stopLoss: z.number(),
+  signalType: z.enum(['BUY', 'SELL']),
+  status: z.enum(['active', 'filled', 'closed']).default('active'),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+const bulkSignalsSchema = z.object({
+  signals: z.array(createSignalSchema),
+  token: z.string().optional(),
+});
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const type = searchParams.get('type');
-    const status = searchParams.get('status');
-    const asset = searchParams.get('asset');
-    const limit = parseInt(searchParams.get('limit') || '50');
-    const offset = parseInt(searchParams.get('offset') || '0');
+    
+    const queryParams = signalQuerySchema.safeParse({
+      type: searchParams.get('type'),
+      status: searchParams.get('status'),
+      asset: searchParams.get('asset'),
+      limit: searchParams.get('limit'),
+      offset: searchParams.get('offset'),
+    });
+
+    if (!queryParams.success) {
+      return Response.json(
+        { error: 'Invalid query parameters', details: queryParams.error.issues },
+        { status: 400 }
+      );
+    }
+
+    const { type, status, asset, limit: limitStr, offset: offsetStr } = queryParams.data;
+    const limit = parseInt(limitStr || '50');
+    const offset = parseInt(offsetStr || '0');
 
     const where: any = {};
 
@@ -118,6 +157,72 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching signals:', error);
     return Response.json(
       { error: 'Failed to fetch signals', message: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const authHeader = request.headers.get('authorization');
+    const cronSecret = process.env.CRON_SECRET || 'dev-secret';
+    
+    const body = await request.json();
+    const validation = bulkSignalsSchema.safeParse(body);
+
+    if (!validation.success) {
+      return Response.json(
+        { error: 'Invalid request body', details: validation.error.issues },
+        { status: 400 }
+      );
+    }
+
+    const { signals, token } = validation.data;
+
+    if (authHeader !== `Bearer ${cronSecret}` && token !== cronSecret) {
+      return Response.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const created = [];
+    const errors = [];
+
+    for (const signalData of signals) {
+      try {
+        const signal = await prisma.signal.create({
+          data: {
+            asset: signalData.asset,
+            timeframe: signalData.timeframe,
+            entryPrice: signalData.entryPrice,
+            takeProfit: signalData.takeProfit,
+            stopLoss: signalData.stopLoss,
+            signalType: signalData.signalType,
+            status: signalData.status,
+            metadata: signalData.metadata ? JSON.stringify(signalData.metadata) : null,
+          },
+        });
+        created.push(signal.id);
+      } catch (error: any) {
+        errors.push({
+          asset: signalData.asset,
+          error: error.message,
+        });
+      }
+    }
+
+    return Response.json({
+      success: true,
+      created: created.length,
+      failed: errors.length,
+      signalIds: created,
+      errors: errors.length > 0 ? errors : undefined,
+    });
+  } catch (error: any) {
+    console.error('Error creating signals:', error);
+    return Response.json(
+      { error: 'Failed to create signals', message: error.message },
       { status: 500 }
     );
   }
