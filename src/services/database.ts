@@ -1,11 +1,17 @@
 import { PrismaClient } from '@prisma/client';
 import { Signal } from '../types';
+import {
+  OneSignalNotificationService,
+  SignalNotification,
+} from '../../lib/notifications/oneSignal';
 
 export class DatabaseService {
   private prisma: PrismaClient;
+  private notificationService: OneSignalNotificationService | null;
 
-  constructor() {
+  constructor(notificationService?: OneSignalNotificationService | null) {
     this.prisma = new PrismaClient();
+    this.notificationService = notificationService ?? null;
   }
 
   async connect(): Promise<void> {
@@ -43,6 +49,22 @@ export class DatabaseService {
         metadata: signal.metadata || null,
       },
     });
+
+    if (this.notificationService && this.notificationService.isEnabled()) {
+      const notification: SignalNotification = {
+        asset: savedSignal.asset,
+        signalType: savedSignal.signalType as 'BUY' | 'SELL',
+        entryPrice: savedSignal.entryPrice,
+        takeProfit: savedSignal.takeProfit,
+        stopLoss: savedSignal.stopLoss,
+        timeframe: savedSignal.timeframe,
+        metadata: savedSignal.metadata ? JSON.parse(savedSignal.metadata) : undefined,
+      };
+
+      this.notificationService.sendSignalAlert(notification).catch((error) => {
+        console.error('Failed to send signal notification:', error);
+      });
+    }
 
     return savedSignal as Signal;
   }
