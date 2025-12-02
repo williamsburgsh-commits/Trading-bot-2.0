@@ -209,11 +209,7 @@ describe('OneSignalNotificationService', () => {
         enabled: false,
       });
 
-      const result = await disabledService.sendToSegment(
-        'All Users',
-        'Test',
-        'Test message'
-      );
+      const result = await disabledService.sendToSegment('All Users', 'Test', 'Test message');
 
       expect(result).toBe(false);
     });

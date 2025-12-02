@@ -25,15 +25,14 @@ export function SignalsCard({ signal }: SignalsCardProps) {
   }
 
   const currentProfit = 0; // Would be calculated from current price vs entry
-  const riskReward = Math.abs((signal.takeProfit - signal.entryPrice) / (signal.entryPrice - signal.stopLoss)) || 0;
+  const riskReward =
+    Math.abs((signal.takeProfit - signal.entryPrice) / (signal.entryPrice - signal.stopLoss)) || 0;
 
   return (
     <div
       className={cn(
         'rounded-lg border p-4 transition-all hover:shadow-lg',
-        isBuy
-          ? 'bg-green-500/5 border-green-500/20'
-          : 'bg-red-500/5 border-red-500/20'
+        isBuy ? 'bg-green-500/5 border-green-500/20' : 'bg-red-500/5 border-red-500/20'
       )}
     >
       {/* Header */}
@@ -42,16 +41,10 @@ export function SignalsCard({ signal }: SignalsCardProps) {
           <div
             className={cn(
               'h-10 w-10 rounded-lg flex items-center justify-center',
-              isBuy
-                ? 'bg-green-500/20 text-green-500'
-                : 'bg-red-500/20 text-red-500'
+              isBuy ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'
             )}
           >
-            {isBuy ? (
-              <TrendingUp className="h-5 w-5" />
-            ) : (
-              <TrendingDown className="h-5 w-5" />
-            )}
+            {isBuy ? <TrendingUp className="h-5 w-5" /> : <TrendingDown className="h-5 w-5" />}
           </div>
           <div>
             <h3 className="font-semibold text-lg">{signal.asset}</h3>
@@ -110,7 +103,9 @@ export function SignalsCard({ signal }: SignalsCardProps) {
         </div>
         <div className="bg-background/50 rounded p-2">
           <p className="text-muted-foreground text-xs">Current P&L</p>
-          <p className={cn('font-semibold', currentProfit >= 0 ? 'text-green-500' : 'text-red-500')}>
+          <p
+            className={cn('font-semibold', currentProfit >= 0 ? 'text-green-500' : 'text-red-500')}
+          >
             {formatCurrency(currentProfit)}
           </p>
         </div>
@@ -143,7 +138,12 @@ export function SignalsCard({ signal }: SignalsCardProps) {
       {/* Timestamp */}
       <div className="flex items-center justify-between pt-3 border-t border-border/50 text-xs text-muted-foreground">
         <span>{formatTimeAgo(signal.createdAt)}</span>
-        <span>{new Date(signal.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+        <span>
+          {new Date(signal.createdAt).toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+          })}
+        </span>
       </div>
     </div>
   );

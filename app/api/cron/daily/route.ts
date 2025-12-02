@@ -4,11 +4,20 @@ export const maxDuration = 60;
 
 import { NextRequest } from 'next/server';
 import { UnifiedMarketDataService } from '@/src/services/unifiedMarketData';
-import { UnifiedSignalEngine } from '@/src/services/unifiedSignalEngine';
+import { StrategyOrchestrator } from '@/src/services/StrategyOrchestrator';
 import { prisma } from '@/lib/prisma';
+import type { AllSymbols, Timeframe } from '@/src/services/unifiedMarketData';
 
-const DAILY_TIMEFRAMES = ['4h', '1d'] as const;
-const ASSETS = ['BTCUSDT', 'ETHUSDT', 'XRPUSDT', 'SOLUSDT', 'EUR/USD', 'USD/JPY', 'GBP/USD'];
+const DAILY_TIMEFRAMES: Timeframe[] = ['4h', '1d'];
+const ASSETS: AllSymbols[] = [
+  'BTCUSDT',
+  'ETHUSDT',
+  'XRPUSDT',
+  'SOLUSDT',
+  'EUR/USD',
+  'USD/JPY',
+  'GBP/USD',
+];
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,56 +28,48 @@ export async function GET(request: NextRequest) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('Starting daily signal generation cron job...');
+    console.log('Starting daily signal generation cron job with strategy engine...');
 
     const marketDataService = new UnifiedMarketDataService({
       alphaVantage: {
         apiKey: process.env.ALPHA_VANTAGE_API_KEY || '',
       },
     });
-    const signalEngine = new UnifiedSignalEngine(marketDataService);
+
+    const orchestrator = new StrategyOrchestrator(marketDataService, {
+      runBacktestOnStartup: false,
+      enableDailyStrategy: true,
+      enableScalpingStrategy: false,
+    });
+
+    console.log('Generating daily signals...');
+    const signals = await orchestrator.generateDailySignals(ASSETS, DAILY_TIMEFRAMES);
 
     const allSignals = [];
     const errors = [];
 
-    for (const asset of ASSETS) {
-      for (const timeframe of DAILY_TIMEFRAMES) {
-        try {
-          console.log(`Generating signals for ${asset} on ${timeframe}...`);
-          const signals = await signalEngine.generateSignals(asset as any, timeframe as any);
-
-          for (const signal of signals) {
-            try {
-              const created = await prisma.signal.create({
-                data: {
-                  asset: signal.asset,
-                  timeframe: signal.timeframe,
-                  entryPrice: signal.entryPrice,
-                  takeProfit: signal.takeProfit,
-                  stopLoss: signal.stopLoss,
-                  signalType: signal.signalType,
-                  status: signal.status || 'active',
-                  metadata: signal.metadata ? JSON.stringify(signal.metadata) : null,
-                },
-              });
-              allSignals.push(created.id);
-            } catch (error: any) {
-              console.error(`Failed to save signal for ${asset}:`, error.message);
-              errors.push({
-                asset,
-                timeframe,
-                error: error.message,
-              });
-            }
-          }
-        } catch (error: any) {
-          console.error(`Failed to generate signals for ${asset} on ${timeframe}:`, error.message);
-          errors.push({
-            asset,
-            timeframe,
-            error: error.message,
-          });
-        }
+    for (const signal of signals) {
+      try {
+        const created = await prisma.signal.create({
+          data: {
+            asset: signal.asset,
+            timeframe: signal.timeframe,
+            entryPrice: signal.entryPrice,
+            takeProfit: signal.takeProfit,
+            stopLoss: signal.stopLoss,
+            signalType: signal.signalType,
+            status: signal.status || 'active',
+            metadata: signal.metadata || null,
+          },
+        });
+        allSignals.push(created.id);
+      } catch (error: any) {
+        console.error(`Failed to save signal for ${signal.asset}:`, error.message);
+        errors.push({
+          asset: signal.asset,
+          timeframe: signal.timeframe,
+          error: error.message,
+        });
       }
     }
 

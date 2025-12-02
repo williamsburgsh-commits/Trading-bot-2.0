@@ -32,7 +32,7 @@ const defaultSettings: UserSettings = {
 
 async function getStorageAdapter(): Promise<StorageAdapter> {
   let storageAdapter: StorageAdapter;
-  
+
   try {
     const { kv } = await import('@/lib/kv');
     storageAdapter = new StorageAdapter(kv);
@@ -48,11 +48,11 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     const storageAdapter = await getStorageAdapter();
-    
+
     const userId = session?.user?.id || 'anonymous';
-    
+
     const storedSettings = await storageAdapter.getUserSettings(userId);
-    
+
     const settings = storedSettings
       ? {
           enabledAssets: storedSettings.enabledAssets,
@@ -79,12 +79,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session) {
-      return Response.json(
-        { error: 'Unauthorized - Authentication required' },
-        { status: 401 }
-      );
+      return Response.json({ error: 'Unauthorized - Authentication required' }, { status: 401 });
     }
 
     const storageAdapter = await getStorageAdapter();

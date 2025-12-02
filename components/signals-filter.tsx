@@ -18,10 +18,7 @@ export function SignalsFilter({ onFilterChange, assets }: SignalsFilterProps) {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setOpenDropdown(null);
       }
     };
@@ -32,10 +29,7 @@ export function SignalsFilter({ onFilterChange, assets }: SignalsFilterProps) {
     };
   }, []);
 
-  const handleFilterChange = (
-    key: keyof FilterOptions,
-    value: string | undefined
-  ) => {
+  const handleFilterChange = (key: keyof FilterOptions, value: string | undefined) => {
     const newFilters = { ...filters, [key]: value };
     if (!value) {
       delete newFilters[key];
@@ -62,9 +56,7 @@ export function SignalsFilter({ onFilterChange, assets }: SignalsFilterProps) {
       <Button
         variant="outline"
         size="sm"
-        onClick={() =>
-          setOpenDropdown(openDropdown === filterKey ? null : filterKey)
-        }
+        onClick={() => setOpenDropdown(openDropdown === filterKey ? null : filterKey)}
         className="gap-2"
       >
         {label}
@@ -107,29 +99,11 @@ export function SignalsFilter({ onFilterChange, assets }: SignalsFilterProps) {
       ref={dropdownRef}
       className="flex flex-wrap gap-2 items-center p-4 bg-card border border-border rounded-lg"
     >
-      <span className="text-sm font-medium text-muted-foreground">
-        Filters:
-      </span>
-      <FilterDropdown
-        label="Status"
-        filterKey="status"
-        options={statusOptions}
-      />
-      <FilterDropdown
-        label="Asset"
-        filterKey="asset"
-        options={assets}
-      />
-      <FilterDropdown
-        label="Type"
-        filterKey="assetType"
-        options={assetTypeOptions}
-      />
-      <FilterDropdown
-        label="Signal"
-        filterKey="signalType"
-        options={signalTypeOptions}
-      />
+      <span className="text-sm font-medium text-muted-foreground">Filters:</span>
+      <FilterDropdown label="Status" filterKey="status" options={statusOptions} />
+      <FilterDropdown label="Asset" filterKey="asset" options={assets} />
+      <FilterDropdown label="Type" filterKey="assetType" options={assetTypeOptions} />
+      <FilterDropdown label="Signal" filterKey="signalType" options={signalTypeOptions} />
 
       {Object.keys(filters).length > 0 && (
         <Button
