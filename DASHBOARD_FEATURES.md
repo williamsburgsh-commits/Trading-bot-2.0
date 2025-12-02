@@ -1,371 +1,341 @@
-# Trading Signals Dashboard - Feature Reference
+# Dashboard & Settings UI - New Features
 
-## User Interface
+## Overview
 
-### Main Dashboard Page
+This document describes the completely overhauled frontend with enhanced features for trading signal monitoring.
 
-```
-┌─────────────────────────────────────────────────────────┐
-│ Trading Signals Dashboard                               │
-│ Real-time monitoring and analytics for trading signals  │
-│                                                         │
-│ [Auto-refresh ☑] [Interval: 15s ▼] [Refresh ↻]       │
-└─────────────────────────────────────────────────────────┘
+## Main Dashboard (`/`)
 
-┌──────────────┬──────────────┬──────────────┬──────────────┬──────────────┐
-│Active: 15    │Total: 142    │Closed: 127   │Win Rate: 62% │Avg P&L: $125 │
-└──────────────┴──────────────┴──────────────┴──────────────┴──────────────┘
+### Key Features
 
-┌─────────────────────────────────────────────────────────┐
-│ [Status ▼] [Asset ▼] [Type ▼] [Signal ▼] [Clear All]  │
-└─────────────────────────────────────────────────────────┘
+#### 1. **Tab-Based Signal Categorization**
+- **Daily Signals Tab**: Shows signals for longer timeframes (4h, 1d)
+- **Scalping Signals Tab**: Shows signals for shorter timeframes (5m, 15m, 30m, 1h)
+- Seamless switching between signal categories
 
-┌─────────────────────────────────────────────────────────┐
-│ Signals (Showing 50 of 142)            [📋] [📊]       │
-├───┬──────┬─────┬───────┬─────────┬─────────┬────┬──────┤
-│   │Asset │Type │Entry  │SL       │TP1     │... │Status│
-├───┼──────┼─────┼───────┼─────────┼─────────┼────┼──────┤
-│ ✓ │BTCUSDT│🟢BUY│45000 │44000   │45600   │... │Active│
-│ ✓ │ETHUSDT│🔴SELL│2500 │2550    │2400    │... │Active│
-│ ✓ │EUR/USD│🟢BUY│1.0850│1.0820  │1.0880  │... │Closed│
-└───┴──────┴─────┴───────┴─────────┴─────────┴────┴──────┘
-```
+#### 2. **Real-Time Data Updates**
+- Uses **SWR (stale-while-revalidate)** for efficient data fetching
+- Automatic refresh every **15 seconds**
+- Revalidates on browser focus and reconnection
+- Shows skeleton loaders during data fetch
+- Displays error states with retry functionality
 
-## Features by Section
+#### 3. **Enhanced Signals Table**
+Displays the following columns:
+- **Asset**: Trading pair symbol
+- **Signal Type**: BUY/SELL with color-coded badges and icons
+- **Entry**: Entry price
+- **TP**: Take Profit target price
+- **SL**: Stop Loss price
+- **Timeframe**: Signal timeframe (5m, 15m, 30m, 1h, 4h, 1d)
+- **Generated At**: Time since signal creation (e.g., "5m ago")
+- **Confidence**: Star rating (1-5 stars) with tooltip showing backtest info
 
-### 1. Metrics Cards (Top Bar)
+#### 4. **Live Performance Metrics**
+5-card grid showing:
+- **Active Signals**: Currently open positions
+- **Total Signals**: All-time signal count
+- **Closed Signals**: Completed trades
+- **Win Rate**: Success percentage of closed signals
+- **Average Profit**: Average profit/loss percentage
 
-**Active Signals**
-- Shows currently open positions
-- Real-time count
-- Updated on refresh
+#### 5. **Risk Disclaimer Banner**
+- Prominent warning about trading risks
+- Dismissable by user
+- Professional compliance messaging
 
-**Total Signals**
-- All-time signal count
-- Includes active, closed, and filled
-- Cumulative total
+#### 6. **Asset Filtering**
+- Dynamic dropdown to filter signals by specific assets
+- Updates in real-time as you switch tabs
+- Shows only assets with available signals
 
-**Closed Signals**
-- Count of completed trades
-- Used for performance calculation
-- Historical data
+#### 7. **Empty State Handling**
+- Informative messages when no signals are available
+- Different messages for daily vs scalping categories
 
-**Win Rate**
-- Percentage of profitable closed signals
-- Calculated from closed trades
-- Trend indicator (up if > 50%)
+## Settings Page (`/settings`)
 
-**Average Profit/Loss**
-- Mean profit/loss per signal
-- Currency formatted
-- Trend indicator (green/red)
+### Key Features
 
-### 2. Filter Bar
+#### 1. **Authentication Guard**
+- Login required to access settings
+- Demo credentials: `admin` / `admin123`
+- Token-based session management (localStorage)
+- Automatic token verification on page load
 
-**Status Filter**
-```
-[Status ▼]
-├─ Clear Filter
-├─ active
-├─ filled
-└─ closed
-```
-- Narrows signals by current state
-- Combines with other filters
-- Shows active filter as badge
+#### 2. **Asset Management**
+Separate sections for:
+- **Cryptocurrency Assets**: BTC, ETH, XRP, SOL
+- **Forex Assets**: EUR/USD, GBP/USD, USD/JPY
 
-**Asset Filter**
-```
-[Asset ▼]
-├─ Clear Filter
-├─ BTCUSDT
-├─ ETHUSDT
-├─ XRPUSDT
-├─ SOLUSDT
-├─ EUR/USD
-├─ USD/JPY
-└─ GBP/USD
-```
-- Select specific cryptocurrency or forex pair
-- Dynamically populated from signals
-- Shows selected asset
+Toggle switches to enable/disable each asset individually.
 
-**Type Filter** (Asset Type)
-```
-[Type ▼]
-├─ Clear Filter
-├─ crypto
-└─ forex
-```
-- Separates cryptocurrency and forex signals
-- Useful for different trading strategies
-- Can combine with other filters
+#### 3. **Notification Channels**
+Configure how you want to receive alerts:
+- **Email Notifications**: Receive alerts via email
+- **Push Notifications**: Browser/mobile push alerts
+- **Webhook Notifications**: Send to external webhook URL
 
-**Signal Type Filter**
-```
-[Signal ▼]
-├─ Clear Filter
-├─ BUY
-└─ SELL
-```
-- Shows only bullish or bearish signals
-- Color coded in results
-- Helps directional bias analysis
+#### 4. **Preferred Timeframes**
+Visual selector for timeframes:
+- 5m, 15m, 30m, 1h, 4h, 1d
+- Multi-select (click to toggle)
+- Color-coded selection state
 
-**Clear All**
-- Removes all active filters
-- Resets to full signal list
-- Only shows when filters active
+#### 5. **Risk Level Slider**
+- Adjustable risk tolerance (0-100%)
+- Affects position sizing and stop loss distances
+- Visual slider with percentage display
+- Range from Conservative (0%) to Aggressive (100%)
 
-### 3. Table View (📋 Icon)
+#### 6. **Optimistic UI Updates**
+- Settings save immediately with feedback
+- Shows loading state during save
+- Success confirmation message
+- Persists settings via API
 
-**Columns:**
-1. **Asset** - Cryptocurrency or forex pair
-   - BTCUSDT, ETHUSDT, EUR/USD, etc.
+## New UI Components
 
-2. **Signal Type** - BUY or SELL
-   - 🟢 Green badge = BUY
-   - 🔴 Red badge = SELL
-   - Icon + Text
+### Created Components
 
-3. **Timeframe** - Trading timeframe
-   - 5m, 15m, 1h, 4h
+1. **Tabs** (`components/ui/tabs.tsx`)
+   - Context-based tab system
+   - TabsList, TabsTrigger, TabsContent
+   - Fully accessible with keyboard navigation
 
-4. **Entry** - Market entry price
-   - Currency formatted
-   - Right-aligned
+2. **Skeleton** (`components/ui/skeleton.tsx`)
+   - Animated loading placeholders
+   - Consistent styling with theme
 
-5. **Stop Loss** - Risk management exit
-   - Red text for visibility
-   - Right-aligned
+3. **Tooltip** (`components/ui/tooltip.tsx`)
+   - Hover-based information display
+   - Used for confidence/backtest info
 
-6. **TP1 (40%)** - First profit level
-   - 40% of position
-   - Green text
-   - Right-aligned
+4. **Switch** (`components/ui/switch.tsx`)
+   - Toggle switch component
+   - Used for asset and notification settings
 
-7. **TP2 (35%)** - Second profit level
-   - 35% of position
-   - Green text
-   - Right-aligned
+5. **Slider** (`components/ui/slider.tsx`)
+   - Range input component
+   - Used for risk level adjustment
 
-8. **TP3 (25%)** - Final profit level
-   - Remaining 25%
-   - Green text
-   - Right-aligned
+6. **Input** (`components/ui/input.tsx`)
+   - Text input with consistent styling
+   - Used in login form
 
-9. **Status** - Signal state
-   - 🔵 Blue = Active (open trade)
-   - 🟡 Yellow = Filled (partial)
-   - ⚫ Gray = Closed (complete)
+7. **Label** (`components/ui/label.tsx`)
+   - Form field labels
+   - Accessibility support
 
-10. **Created** - Timestamp
-    - "5 minutes ago" format
-    - Relative to now
+8. **ConfidenceStars** (`components/confidence-stars.tsx`)
+   - 1-5 star rating display
+   - Color-coded based on confidence level
 
-**Interaction:**
-- Hover rows for highlight
-- Responsive on mobile
-- Horizontal scroll on small screens
+9. **RiskDisclaimer** (`components/risk-disclaimer.tsx`)
+   - Warning banner component
+   - Dismissable with local state
 
-### 4. Grid View (📊 Icon)
+10. **SignalsTableSkeleton** (`components/signals-table-skeleton.tsx`)
+    - Loading state for signals table
+    - Matches table structure
 
-**Card Layout:**
-```
-┌─────────────────────────┐
-│ [🟢 BUY]    BTCUSDT     │
-│ 1h • crypto      [Active]│
-│                          │
-│ Entry  45,000.50        │
-│ SL     44,000.00 (red)  │
-│ ─────────────────────  │
-│ TP1    45,600.00 (40%)  │
-│ TP2    46,200.00 (35%)  │
-│ TP3    46,500.00 (25%)  │
-│                          │
-│ Risk/Reward: 2.5:1      │
-│ Current P&L: +$500      │
-│                          │
-│ RSI: 28.5  Vol: 1.8x    │
-│                          │
-│ 5 min ago  10:30 AM     │
-└─────────────────────────┘
+## API Endpoints
+
+### Updated Endpoints
+
+#### `GET /api/signals`
+Query parameters:
+- `type`: 'daily' | 'scalping' (filters by timeframe)
+- `status`: 'active' | 'filled' | 'closed'
+- `asset`: Specific asset symbol
+- `limit`: Number of results (default: 50)
+- `offset`: Pagination offset (default: 0)
+
+Returns:
+```json
+{
+  "signals": [...],
+  "total": 0,
+  "metrics": {
+    "winRate": 0,
+    "avgProfit": 0,
+    "totalSignals": 0,
+    "closedSignals": 0,
+    "activeSignals": 0
+  }
+}
 ```
 
-**Card Elements:**
-- Header with signal type icon and asset
-- Status badge
-- Entry price (bold)
-- Stop loss (red)
-- Take profit levels (green)
-- Risk/reward ratio
-- Current profit/loss
-- Technical indicators
-- Time information
+Each signal includes:
+- `category`: 'daily' | 'scalping'
+- `confidence`: 0-100 number
+- Enhanced `metadata` with `backtestWinRate` and `backtestTrades`
 
-**Layout:**
-- 1 column on mobile
-- 2 columns on tablet
-- 3 columns on desktop
-- Responsive gap
+### New Endpoints
 
-### 5. Controls (Top Right)
+#### `GET /api/assets`
+Returns available assets:
+```json
+{
+  "assets": [
+    {
+      "symbol": "BTCUSDT",
+      "name": "Bitcoin",
+      "type": "crypto",
+      "enabled": true
+    }
+  ]
+}
+```
 
-**Auto-Refresh Toggle**
-- Checkbox to enable/disable
-- Label: "Auto-refresh: ☑"
-- Stops polling when unchecked
+#### `GET /api/settings`
+Returns current user settings:
+```json
+{
+  "settings": {
+    "enabledAssets": ["BTCUSDT", "ETHUSDT"],
+    "notificationChannels": {
+      "email": false,
+      "push": true,
+      "webhook": false
+    },
+    "preferredTimeframes": ["4h", "1d"],
+    "riskLevel": 50
+  }
+}
+```
 
-**Refresh Interval Selector** (when auto-refresh enabled)
-- Dropdown menu
-- Options: 5s, 10s, 15s, 30s, 1m
-- Default: 15s
+#### `POST /api/settings`
+Save user settings:
+```json
+{
+  "settings": {
+    "enabledAssets": [...],
+    "notificationChannels": {...},
+    "preferredTimeframes": [...],
+    "riskLevel": 50
+  }
+}
+```
 
-**Manual Refresh Button**
-- 🔄 Refresh button
-- Disabled during refresh (loading state)
-- Immediate data update
-- Shows spinner during loading
+#### `POST /api/auth`
+Authentication endpoint:
 
-### 6. Footer
+Login:
+```json
+{
+  "action": "login",
+  "username": "admin",
+  "password": "admin123"
+}
+```
 
-**Status Information**
-- "Dashboard automatically refreshes every 15 seconds"
-- "Last updated: 3:45:23 PM"
+Verify token:
+```json
+{
+  "action": "verify",
+  "token": "demo-token-..."
+}
+```
 
----
+## Technical Stack
 
-## View Mode Transitions
+### Dependencies Added
+- **SWR**: Data fetching and caching library
+  - Automatic revalidation
+  - Optimistic UI updates
+  - Cache management
 
-### Switching Views
-- Click 📋 (List) for table view
-- Click 📊 (Grid) for grid view
-- Current view highlighted
-- Data persists between switches
+### Styling
+- **Tailwind CSS**: Utility-first CSS framework
+- **Dark Mode**: Full theme support via next-themes
+- **Responsive Design**: Mobile-first approach
+- **Design System**: Consistent colors, spacing, typography
 
----
+### Type Safety
+- Full TypeScript coverage
+- Extended type definitions in `lib/types.ts`
+- Strict type checking enabled
 
-## Filtering Examples
+## Development
 
-### Example 1: All Active BUY Signals
-1. Click [Status ▼] → Select "active"
-2. Click [Signal ▼] → Select "BUY"
-3. Result: Only active BUY signals shown
+### Running Locally
 
-### Example 2: All Forex Signals
-1. Click [Type ▼] → Select "forex"
-2. Result: EUR/USD, USD/JPY, GBP/USD signals only
+```bash
+# Install dependencies
+npm install
 
-### Example 3: Specific Asset History
-1. Click [Asset ▼] → Select "BTCUSDT"
-2. Result: All BTCUSDT signals (all statuses)
+# Set up environment
+cp .env.example .env
 
----
+# Generate Prisma client
+npx prisma generate
 
-## Color Legend
+# Run migrations
+npx prisma migrate deploy
 
-### Signal Type
-- 🟢 **Green** = BUY (bullish, long position)
-- 🔴 **Red** = SELL (bearish, short position)
+# Start dev server
+npm run dev
+```
 
-### Signal Status
-- 🔵 **Blue Badge** = Active (open, waiting for TP/SL)
-- 🟡 **Yellow Badge** = Filled (partially executed)
-- ⚫ **Gray Badge** = Closed (trade complete)
+Visit:
+- Dashboard: http://localhost:3000
+- Settings: http://localhost:3000/settings
 
-### Price Levels
-- **Entry**: Black/White (default text)
-- **Stop Loss**: 🔴 Red (protection)
-- **Take Profit**: 🟢 Green (targets)
+### Building for Production
 
-### Metrics Trend
-- 📈 **Up Arrow** = Positive trend (> 50% for win rate)
-- 📉 **Down Arrow** = Negative trend (< 50% for win rate)
-- ➡️ **Neutral Arrow** = Average P&L = 0
+```bash
+npm run build
+npm start
+```
 
----
+## Deployment Notes
 
-## Keyboard Shortcuts (Future)
+### Vercel Deployment
+- **No vercel.json required** - Configure via Vercel dashboard
+- Set environment variables in Vercel dashboard:
+  - `DATABASE_URL`: PostgreSQL connection string (recommended for production)
+  - `ALPHA_VANTAGE_API_KEY`: For forex data
+  - `NODE_ENV`: production
 
-*Available in upcoming versions:*
-- `R` - Manual refresh
-- `T` - Toggle table view
-- `G` - Toggle grid view
-- `S` - Focus status filter
-- `A` - Focus asset filter
-- `Esc` - Clear filters
-- `?` - Show help
-
----
-
-## Data Refresh Behavior
-
-### When Auto-Refresh Enabled
-1. Fetches /api/signals every N seconds
-2. Compares with current data
-3. Updates only changed records
-4. Preserves scroll position
-5. Shows loading indicator
-
-### When Auto-Refresh Disabled
-- No automatic updates
-- Manual refresh only
-- Useful for stable viewing
-
-### Manual Refresh
-- Always fetches latest
-- Shows spinner during load
-- Applies current filters
-- Maintains scroll position
-
----
-
-## Responsive Behavior
-
-### Mobile (< 640px)
-- Single column metrics (stack vertically)
-- Filters in dropdown or collapsible
-- Table scrolls horizontally
-- Simplified card view
-
-### Tablet (640px - 1024px)
-- 2 column metrics
-- Filters in 2 columns
-- Table with reduced columns
-- 2 column card grid
-
-### Desktop (> 1024px)
-- 5 column metrics
-- All filters visible
-- Full table
-- 3+ column card grid
-
----
-
-## Performance Characteristics
-
-**Initial Load:** ~500ms
-**Refresh:** ~200ms
-**Filter Apply:** ~50ms
-**View Switch:** Instant
-
----
+### Configuration
+All settings managed through Vercel dashboard:
+- Build Command: `npm run build`
+- Output Directory: `.next`
+- Development Command: `npm run dev`
 
 ## Browser Support
 
-✅ Chrome 90+
-✅ Firefox 88+
-✅ Safari 14+
-✅ Edge 90+
-✅ Mobile browsers (iOS, Android)
-
----
+- Modern browsers (Chrome, Firefox, Safari, Edge)
+- ES2020+ support required
+- Local storage for auth tokens
+- Fetch API for network requests
 
 ## Accessibility
 
-- Semantic HTML structure
-- Keyboard navigation support
-- Color contrast WCAG AA compliant
-- Alt text on all icons
+- Semantic HTML throughout
 - ARIA labels on interactive elements
-- Focus indicators visible
+- Keyboard navigation support
+- Focus management
+- Screen reader friendly
+
+## Performance
+
+- SWR caching reduces unnecessary requests
+- Skeleton loaders improve perceived performance
+- Code splitting via Next.js
+- Optimized bundle size
+- Server-side rendering for initial load
+
+## Future Enhancements
+
+Potential additions:
+- Real-time WebSocket updates
+- Advanced chart visualizations
+- Trade history and analytics
+- Multi-user authentication
+- Email notification setup
+- Webhook configuration UI
+- Export signals to CSV
+- Custom alert conditions
+- Mobile app (React Native)

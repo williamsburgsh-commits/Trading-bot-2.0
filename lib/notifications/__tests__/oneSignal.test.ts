@@ -166,7 +166,7 @@ describe('OneSignalNotificationService', () => {
       };
       mockClient.post.mockRejectedValue(axiosError);
 
-      mockedAxios.isAxiosError = jest.fn().mockReturnValue(true);
+      (mockedAxios.isAxiosError as any) = jest.fn().mockReturnValue(true);
 
       const result = await service.sendSignalAlert(mockSignal);
 

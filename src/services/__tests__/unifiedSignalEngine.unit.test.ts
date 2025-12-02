@@ -2,7 +2,10 @@ import { UnifiedSignalEngine } from '../unifiedSignalEngine';
 import { UnifiedMarketDataService } from '../unifiedMarketData';
 import { KlineData } from '../../types';
 
-const generateMockKlines = (count: number, trend: 'bullish' | 'bearish' | 'neutral' = 'neutral'): KlineData[] => {
+const generateMockKlines = (
+  count: number,
+  trend: 'bullish' | 'bearish' | 'neutral' = 'neutral'
+): KlineData[] => {
   const klines: KlineData[] = [];
   const basePrice = 1.1;
   const now = Date.now();
@@ -103,7 +106,7 @@ describe('UnifiedSignalEngine', () => {
     it('should apply tighter risk for forex pairs', async () => {
       const mockKlines = generateMockKlines(100, 'bullish');
       mockKlines[99]!.close = '1.100000';
-      
+
       mockMarketDataService.getKlines.mockResolvedValue(mockKlines);
       mockMarketDataService.getAssetType.mockReturnValue('forex');
 
@@ -113,7 +116,7 @@ describe('UnifiedSignalEngine', () => {
         const signal = signals[0]!;
         const entryPrice = signal.entryPrice;
         const riskPercent = Math.abs(entryPrice - signal.stopLoss) / entryPrice;
-        
+
         expect(riskPercent).toBeLessThan(0.02);
       }
     });
@@ -121,7 +124,7 @@ describe('UnifiedSignalEngine', () => {
     it('should apply normal risk for crypto pairs', async () => {
       const mockKlines = generateMockKlines(100, 'bullish');
       mockKlines[99]!.close = '45000.00';
-      
+
       mockMarketDataService.getKlines.mockResolvedValue(mockKlines);
       mockMarketDataService.getAssetType.mockReturnValue('crypto');
 
@@ -131,7 +134,7 @@ describe('UnifiedSignalEngine', () => {
         const signal = signals[0]!;
         const entryPrice = signal.entryPrice;
         const riskPercent = Math.abs(entryPrice - signal.stopLoss) / entryPrice;
-        
+
         expect(riskPercent).toBeCloseTo(0.02, 3);
       }
     });

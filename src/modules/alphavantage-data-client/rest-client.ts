@@ -117,7 +117,11 @@ export class AlphaVantageRestClient {
         throw new Error('Invalid response format from Alpha Vantage API');
       }
 
-      if (!AlphaVantageResponseValidator.validateTimeSeries(response.data['Time Series FX (Intraday)'])) {
+      if (
+        !AlphaVantageResponseValidator.validateTimeSeries(
+          response.data['Time Series FX (Intraday)']
+        )
+      ) {
         throw new Error('Invalid time series data in Alpha Vantage response');
       }
 
@@ -188,7 +192,10 @@ export class AlphaVantageRestClient {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  private transformResponse(data: AlphaVantageResponse, timeframe: AlphaVantageTimeframe): KlineData[] {
+  private transformResponse(
+    data: AlphaVantageResponse,
+    timeframe: AlphaVantageTimeframe
+  ): KlineData[] {
     const timeSeries = data['Time Series FX (Intraday)'];
     const klines: KlineData[] = [];
 

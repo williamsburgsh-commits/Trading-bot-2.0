@@ -123,9 +123,7 @@ describe('DatabaseService', () => {
     it('should handle notification errors gracefully', async () => {
       mockPrisma.signal.findFirst.mockResolvedValue(null);
       mockPrisma.signal.create.mockResolvedValue(mockSignal);
-      mockNotificationService.sendSignalAlert.mockRejectedValue(
-        new Error('Notification failed')
-      );
+      mockNotificationService.sendSignalAlert.mockRejectedValue(new Error('Notification failed'));
 
       const result = await databaseService.saveSignal(mockSignal);
 
@@ -151,7 +149,7 @@ describe('DatabaseService', () => {
     });
 
     it('should handle null metadata', async () => {
-      const signalWithoutMetadata = { ...mockSignal, metadata: null };
+      const signalWithoutMetadata = { ...mockSignal, metadata: undefined };
 
       mockPrisma.signal.findFirst.mockResolvedValue(null);
       mockPrisma.signal.create.mockResolvedValue(signalWithoutMetadata);
@@ -177,18 +175,13 @@ describe('DatabaseService', () => {
         stopLoss: 48000,
         status: 'active',
         signalType: 'BUY',
-        metadata: null,
+        metadata: undefined,
         createdAt: new Date(),
       };
 
       mockPrisma.signal.findFirst.mockResolvedValue(mockDuplicate);
 
-      const result = await databaseService.findDuplicateSignal(
-        'BTCUSDT',
-        '1h',
-        'BUY',
-        50000
-      );
+      const result = await databaseService.findDuplicateSignal('BTCUSDT', '1h', 'BUY', 50000);
 
       expect(result).toEqual(mockDuplicate);
       expect(mockPrisma.signal.findFirst).toHaveBeenCalledWith({
@@ -214,12 +207,7 @@ describe('DatabaseService', () => {
     it('should return null when no duplicate found', async () => {
       mockPrisma.signal.findFirst.mockResolvedValue(null);
 
-      const result = await databaseService.findDuplicateSignal(
-        'BTCUSDT',
-        '1h',
-        'BUY',
-        50000
-      );
+      const result = await databaseService.findDuplicateSignal('BTCUSDT', '1h', 'BUY', 50000);
 
       expect(result).toBeNull();
     });
@@ -237,7 +225,7 @@ describe('DatabaseService', () => {
           stopLoss: 48000,
           status: 'active',
           signalType: 'BUY',
-          metadata: null,
+          metadata: undefined,
           createdAt: new Date(),
         },
       ];
@@ -286,7 +274,7 @@ describe('DatabaseService', () => {
         stopLoss: 48000,
         status: 'closed',
         signalType: 'BUY',
-        metadata: null,
+        metadata: undefined,
         createdAt: new Date(),
       };
 
