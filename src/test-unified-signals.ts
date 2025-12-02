@@ -84,11 +84,11 @@ async function main() {
   });
 
   console.log(`\n📊 Recent signals in database (last 20):`);
-  const cryptoCount = allStoredSignals.filter(s => {
+  const cryptoCount = allStoredSignals.filter((s: { metadata: string | null }) => {
     const meta = s.metadata ? JSON.parse(s.metadata) : {};
     return !meta.assetType || meta.assetType === 'crypto';
   }).length;
-  const forexCount = allStoredSignals.filter(s => {
+  const forexCount = allStoredSignals.filter((s: { metadata: string | null }) => {
     const meta = s.metadata ? JSON.parse(s.metadata) : {};
     return meta.assetType === 'forex';
   }).length;
