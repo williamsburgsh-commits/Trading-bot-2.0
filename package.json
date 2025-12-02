@@ -43,12 +43,14 @@
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "@types/node-cron": "^3.0.11",
+    "@vercel/kv": "^3.0.0",
     "axios": "^1.13.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "dotenv": "^17.2.3",
     "lucide-react": "^0.263.1",
     "next": "^14.0.0",
+    "next-auth": "^4.24.13",
     "next-themes": "^0.2.1",
     "node-cron": "^4.2.1",
     "prisma": "^5.22.0",
@@ -60,7 +62,8 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
     "winston": "^3.18.3",
-    "ws": "^8.18.3"
+    "ws": "^8.18.3",
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

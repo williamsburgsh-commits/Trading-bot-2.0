@@ -27,6 +27,10 @@ dev.db*
 logs/
 *.log
 
+# Local storage (JSON fallback)
+data/
+*.json
+
 # IDE
 .vscode/
 .idea/

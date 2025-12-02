@@ -12,3 +12,10 @@ export interface IStorageService {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
 }
+
+export type {
+  StoredSignal,
+  StoredUserSettings,
+  SignalFilters,
+} from './adapter';
+export { StorageAdapter } from './adapter';
