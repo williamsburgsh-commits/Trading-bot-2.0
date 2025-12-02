@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 import { Providers } from './providers';
+import { OneSignalInitializer } from '../components/OneSignalInitializer';
+import { ServiceWorkerRegistration } from '../components/ServiceWorkerRegistration';
+import { OfflineIndicator } from '../components/OfflineIndicator';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -14,8 +17,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script>
+      </head>
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <OneSignalInitializer />
+          <ServiceWorkerRegistration />
+          <OfflineIndicator />
+          {children}
+        </Providers>
       </body>
     </html>
   );

@@ -12,11 +12,13 @@ An automated trading signal monitoring system that generates, stores, and alerts
 - **Persistence Layer**: SQLite database via Prisma for storing signals with full metadata
 - **Signal Generation**: Technical analysis-based signal engine using multiple indicators
 - **Scheduled Monitoring**: Node-cron scheduler for periodic market scanning
-- **Alerting System**: Console logging with pluggable webhook/email support
+- **Push Notifications**: OneSignal integration for real-time signal alerts on web and mobile
+- **Offline Support**: Progressive Web App capabilities with service worker caching
+- **Alerting System**: Console logging with pluggable webhook/email/push notification support
 - **Rate Limiting**: Built-in rate limiting to respect API limits (Binance: 1200/min, Alpha Vantage: 5/min free tier)
 - **Duplicate Detection**: Idempotent storage checks to prevent duplicate alerts
 - **Error Handling**: Comprehensive error logging and recovery
-- **Test Coverage**: 75+ unit and integration tests with ~89% coverage
+- **Test Coverage**: 100+ unit and integration tests with comprehensive coverage
 
 ## Architecture
 
@@ -99,6 +101,16 @@ Key configuration options:
 - `ALPHA_VANTAGE_API_URL`: Alpha Vantage API base URL (default: https://www.alphavantage.co)
 - `ALPHA_VANTAGE_RATE_LIMIT_MAX`: Alpha Vantage rate limit (default: 5 calls/min for free tier)
 - `ALPHA_VANTAGE_RATE_LIMIT_MINUTES`: Rate limit window in minutes (default: 1)
+
+**OneSignal Push Notifications (Optional):**
+- `ONESIGNAL_APP_ID`: Your OneSignal App ID from https://app.onesignal.com
+- `ONESIGNAL_REST_API_KEY`: Your OneSignal REST API Key
+- `ONESIGNAL_ENABLED`: Enable/disable notifications (default: true)
+- `NEXT_PUBLIC_ONESIGNAL_APP_ID`: Frontend OneSignal App ID (same as ONESIGNAL_APP_ID)
+
+**NextAuth (Optional):**
+- `NEXTAUTH_URL`: Your application URL (e.g., http://localhost:3000)
+- `NEXTAUTH_SECRET`: Secret key for JWT encryption (generate with `openssl rand -base64 32`)
 
 **General:**
 - `MONITOR_INTERVAL`: Cron expression for scan frequency (e.g., `*/5 * * * *` for every 5 minutes)
@@ -218,6 +230,32 @@ Alerts are sent through multiple channels:
 ### Console
 Default alert showing signal details and indicators
 
+### OneSignal Push Notifications (Optional)
+Real-time push notifications to subscribed users:
+
+1. **Setup OneSignal:**
+   - Create account at https://app.onesignal.com
+   - Create a new Web app
+   - Copy your App ID and REST API Key
+   - Add to `.env`:
+     ```
+     ONESIGNAL_APP_ID=your-app-id
+     ONESIGNAL_REST_API_KEY=your-rest-api-key
+     NEXT_PUBLIC_ONESIGNAL_APP_ID=your-app-id
+     ```
+
+2. **Features:**
+   - Automatic notification on new signal creation
+   - Rich notification content with entry, TP, and SL
+   - User segmentation support
+   - Offline notification queue
+   - Works on web and mobile browsers
+
+3. **User Opt-in:**
+   - Users prompted to allow notifications on first visit
+   - Notification preference persisted by OneSignal
+   - Only fires for new, non-duplicate signals
+
 ### Webhook (Optional)
 JSON payload sent to configured webhook URL:
 ```json
@@ -263,9 +301,9 @@ npm run prisma:migrate
 
 ## Testing
 
-### Technical Analysis Module Tests
+### Comprehensive Test Suite
 
-Run comprehensive test suite with 75+ tests:
+Run comprehensive test suite with 100+ tests covering strategies, notifications, and integrations:
 
 ```bash
 # Run all tests
@@ -279,13 +317,47 @@ npm run test:integration
 
 # Run with coverage report
 npm run test:coverage
+
+# Run specific test file
+npm test -- oneSignal
+npm test -- database
+npm test -- signalEngine
+
+# Run tests in watch mode
+npm run test:watch
 ```
 
-Test coverage:
-- **Normalizer**: Data conversion, extraction, validation
-- **Indicators**: RSI, MACD, Bollinger Bands, SMA, EMA, ATR, Volume
-- **Integration**: End-to-end scenarios, multi-timeframe, edge cases
-- **Overall**: ~89% coverage on TA module
+Test coverage includes:
+- **Technical Analysis**: RSI, MACD, Bollinger Bands, SMA, EMA, ATR, Volume indicators
+- **Signal Engine**: Strategy logic, indicator calculations, risk/reward ratios
+- **Database Service**: Signal persistence, duplicate detection, notification triggering
+- **OneSignal Notifications**: Alert sending, error handling, user targeting, segment broadcasts
+- **Unified Signal Engine**: Multi-asset support, crypto vs forex risk management
+- **Data Normalization**: Candle data conversion, extraction, validation
+- **Integration Tests**: End-to-end scenarios, multi-timeframe analysis, edge cases
+
+### New Test Files
+
+The following test files ensure notification and strategy reliability:
+
+1. **`lib/notifications/__tests__/oneSignal.test.ts`**: OneSignal notification service tests
+   - Notification sending (success/failure)
+   - User and segment targeting
+   - Error handling (network errors, API failures)
+   - Configuration validation
+
+2. **`src/services/__tests__/database.test.ts`**: Database service with notification integration
+   - Signal persistence with notifications
+   - Duplicate detection (no duplicate notifications)
+   - Notification error handling (graceful degradation)
+   - Metadata parsing
+
+3. **`src/services/__tests__/signalEngine.test.ts`**: Signal engine strategy tests
+   - BUY/SELL signal generation
+   - Indicator calculations (RSI, MACD, volume)
+   - Risk/reward ratio validation
+   - Insufficient data handling
+   - API error recovery
 
 ### Example Usage
 
@@ -365,6 +437,52 @@ if (snapshot) {
 ```
 
 See `src/modules/technical-analysis/README.md` for complete documentation.
+
+## Offline Support & Progressive Web App
+
+The dashboard includes service worker support for offline functionality:
+
+### Features
+- **Automatic Caching**: Dashboard shell and static assets cached on first load
+- **Offline Fallback**: Graceful degradation when network is unavailable
+- **Offline Indicator**: Visual indicator when connection is lost
+- **Service Worker Updates**: Automatic updates when new version is deployed
+
+### Service Workers
+- **`/sw.js`**: Main service worker for offline caching (production only)
+- **`/OneSignalSDKWorker.js`**: OneSignal push notification worker
+- **`/OneSignalSDKUpdaterWorker.js`**: OneSignal update worker
+
+### Testing Offline Mode
+1. Load the dashboard in your browser
+2. Open DevTools → Network tab
+3. Check "Offline" mode
+4. Dashboard should still load from cache
+5. Yellow offline indicator appears at bottom of page
+
+## Risk Disclaimer
+
+⚠️ **IMPORTANT: Please Read Carefully**
+
+This trading signal system is provided **for educational and informational purposes only**. 
+
+### Key Disclaimers:
+- **Not Financial Advice**: This software does not constitute financial, investment, trading, or other advice
+- **No Guarantees**: Past performance does not guarantee future results
+- **High Risk**: Trading cryptocurrencies and forex involves substantial risk of loss
+- **Your Responsibility**: Always conduct your own research (DYOR) before making trading decisions
+- **Capital Risk**: Only trade with capital you can afford to lose completely
+- **No Liability**: The authors and contributors are not liable for any losses incurred
+
+### Best Practices:
+- Start with paper trading or small amounts
+- Use proper risk management (stop losses, position sizing)
+- Never risk more than 1-2% of your capital per trade
+- Diversify your portfolio
+- Stay informed about market conditions
+- Consider consulting a licensed financial advisor
+
+**By using this software, you acknowledge that you understand and accept these risks.**
 
 ## Customization
 

@@ -1,11 +1,12 @@
 import 'dotenv/config';
-import { PrismaClient } from '@prisma/client';
+import { DatabaseService } from './services/database';
 import { UnifiedMarketDataService } from './services/unifiedMarketData';
 import { UnifiedSignalEngine } from './services/unifiedSignalEngine';
-
-const prisma = new PrismaClient();
+import { createOneSignalService } from '../lib/notifications/oneSignal';
 
 async function main() {
+  const notificationService = createOneSignalService();
+  const db = new DatabaseService(notificationService);
   console.log('=== Unified Signal Generation Test ===\n');
 
   const alphaVantageApiKey = process.env.ALPHA_VANTAGE_API_KEY;
@@ -50,59 +51,53 @@ async function main() {
 
   console.log(`\n✅ Generated ${allSignals.length} signal(s)\n`);
 
-  if (allSignals.length > 0) {
-    console.log('Storing signals in database...');
+  try {
+    await db.connect();
     
-    for (const signal of allSignals) {
-      await prisma.signal.create({
-        data: {
-          asset: signal.asset,
-          timeframe: signal.timeframe,
-          entryPrice: signal.entryPrice,
-          takeProfit: signal.takeProfit,
-          stopLoss: signal.stopLoss,
-          status: signal.status,
-          signalType: signal.signalType,
-          metadata: signal.metadata,
-        },
-      });
+    if (allSignals.length > 0) {
+      console.log('Storing signals in database (with notifications)...');
       
-      const metadata = signal.metadata ? JSON.parse(signal.metadata) : {};
-      console.log(`  [${metadata.assetType?.toUpperCase() || 'CRYPTO'}] ${signal.signalType} ${signal.asset} @ ${signal.entryPrice.toFixed(5)}`);
-      console.log(`    TP: ${signal.takeProfit.toFixed(5)} | SL: ${signal.stopLoss.toFixed(5)}`);
-      console.log(`    RSI: ${metadata.rsi?.toFixed(2)} | Volume Ratio: ${metadata.volumeRatio?.toFixed(2)}\n`);
+      for (const signal of allSignals) {
+        await db.saveSignal(signal);
+        
+        const metadata = signal.metadata ? JSON.parse(signal.metadata) : {};
+        console.log(`  [${metadata.assetType?.toUpperCase() || 'CRYPTO'}] ${signal.signalType} ${signal.asset} @ ${signal.entryPrice.toFixed(5)}`);
+        console.log(`    TP: ${signal.takeProfit.toFixed(5)} | SL: ${signal.stopLoss.toFixed(5)}`);
+        console.log(`    RSI: ${metadata.rsi?.toFixed(2)} | Volume Ratio: ${metadata.volumeRatio?.toFixed(2)}\n`);
+      }
+      
+      console.log('✅ All signals stored successfully');
+    } else {
+      console.log('ℹ️  No signals generated. Market conditions may not meet criteria.');
     }
+
+    const recentDate = new Date();
+    recentDate.setHours(recentDate.getHours() - 24);
+    const allStoredSignals = await db.getSignalsByTimeRange(recentDate, new Date());
+
+    console.log(`\n📊 Recent signals in database (last 24h):`);
+    const cryptoCount = allStoredSignals.filter((s) => {
+      const meta = s.metadata ? JSON.parse(s.metadata) : {};
+      return !meta.assetType || meta.assetType === 'crypto';
+    }).length;
+    const forexCount = allStoredSignals.filter((s) => {
+      const meta = s.metadata ? JSON.parse(s.metadata) : {};
+      return meta.assetType === 'forex';
+    }).length;
     
-    console.log('✅ All signals stored successfully');
-  } else {
-    console.log('ℹ️  No signals generated. Market conditions may not meet criteria.');
+    console.log(`  Total: ${allStoredSignals.length} | Crypto: ${cryptoCount} | Forex: ${forexCount}\n`);
+
+    marketDataService.close();
+    await db.disconnect();
+  } catch (error) {
+    console.error('Error:', error);
+    await db.disconnect();
+    throw error;
   }
-
-  const allStoredSignals = await prisma.signal.findMany({
-    orderBy: { createdAt: 'desc' },
-    take: 20,
-  });
-
-  console.log(`\n📊 Recent signals in database (last 20):`);
-  const cryptoCount = allStoredSignals.filter((s: { metadata: string | null }) => {
-    const meta = s.metadata ? JSON.parse(s.metadata) : {};
-    return !meta.assetType || meta.assetType === 'crypto';
-  }).length;
-  const forexCount = allStoredSignals.filter((s: { metadata: string | null }) => {
-    const meta = s.metadata ? JSON.parse(s.metadata) : {};
-    return meta.assetType === 'forex';
-  }).length;
-  
-  console.log(`  Total: ${allStoredSignals.length} | Crypto: ${cryptoCount} | Forex: ${forexCount}\n`);
-
-  marketDataService.close();
 }
 
 main()
   .catch((error) => {
     console.error('Error:', error);
     process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
   });
