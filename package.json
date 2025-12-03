@@ -4,8 +4,8 @@
   "description": "Automated cryptocurrency trading signal monitoring system with persistence, technical analysis, and alerts",
   "main": "index.js",
   "scripts": {
-    "build": "tsc -p tsconfig.backend.json && next build",
-    "build:backend": "tsc -p tsconfig.backend.json",
+    "build": "npx tsc -p tsconfig.backend.json && next build",
+    "build:backend": "npx tsc -p tsconfig.backend.json",
     "start": "next start",
     "dev": "next dev",
     "dev:dashboard": "next dev",
