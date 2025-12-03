@@ -4,8 +4,8 @@
   "description": "Automated cryptocurrency trading signal monitoring system with persistence, technical analysis, and alerts",
   "main": "index.js",
   "scripts": {
-    "build": "tsc && next build",
-    "build:backend": "tsc",
+    "build": "tsc -p tsconfig.backend.json && next build",
+    "build:backend": "tsc -p tsconfig.backend.json",
     "start": "next start",
     "dev": "next dev",
     "dev:dashboard": "next dev",
@@ -27,7 +27,8 @@
     "test:unit": "jest --testPathPattern=unit",
     "test:integration": "jest --testPathPattern=integration",
     "example:ta": "ts-node src/examples/ta-module-example.ts",
-    "example:binance": "ts-node src/examples/binance-data-client-example.ts"
+    "example:binance": "ts-node src/examples/binance-data-client-example.ts",
+    "example:market-data": "ts-node src/examples/test-market-data-service.ts"
   },
   "repository": {
     "type": "git",
