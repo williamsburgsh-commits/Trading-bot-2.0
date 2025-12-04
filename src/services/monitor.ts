@@ -2,7 +2,6 @@ import * as cron from 'node-cron';
 import { DatabaseService } from './database';
 import { SignalEngine } from './signalEngine';
 import { AlertingService } from './alerting';
-import { createOneSignalService } from '../../lib/notifications/oneSignal';
 import { config } from '../config';
 import { Signal } from '../types';
 
@@ -14,8 +13,7 @@ export class MonitorService {
   private task: ReturnType<typeof cron.schedule> | null = null;
 
   constructor() {
-    const notificationService = createOneSignalService();
-    this.db = new DatabaseService(notificationService);
+    this.db = new DatabaseService();
     this.signalEngine = new SignalEngine();
     this.alerting = new AlertingService();
   }
