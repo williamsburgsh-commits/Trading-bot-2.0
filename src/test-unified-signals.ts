@@ -2,11 +2,9 @@ import 'dotenv/config';
 import { DatabaseService } from './services/database';
 import { UnifiedMarketDataService } from './services/unifiedMarketData';
 import { UnifiedSignalEngine } from './services/unifiedSignalEngine';
-import { createOneSignalService } from '../lib/notifications/oneSignal';
 
 async function main() {
-  const notificationService = createOneSignalService();
-  const db = new DatabaseService(notificationService);
+  const db = new DatabaseService();
   console.log('=== Unified Signal Generation Test ===\n');
 
   const alphaVantageApiKey = process.env.ALPHA_VANTAGE_API_KEY;

@@ -1,12 +1,10 @@
 import 'dotenv/config';
 import { DatabaseService } from './services/database';
 import { AlertingService } from './services/alerting';
-import { createOneSignalService } from '../lib/notifications/oneSignal';
 import { Signal } from './types';
 
 async function createTestSignals() {
-  const notificationService = createOneSignalService();
-  const db = new DatabaseService(notificationService);
+  const db = new DatabaseService();
   const alerting = new AlertingService();
 
   try {
